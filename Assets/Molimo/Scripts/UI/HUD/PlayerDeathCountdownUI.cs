@@ -48,8 +48,8 @@ namespace MolimoByLulucaGameDev
         [SerializeField, Min(0.01f)] private float bgmPitchDropDuration = 2.5f;
         [Tooltip("Duração do fade de volume da BGM até 0.")]
         [SerializeField, Min(0.01f)] private float bgmVolumeFadeDuration = 2.5f;
-        [Tooltip("Duração da restauração de pitch/volume no revive.")]
-        [SerializeField, Min(0.01f)] private float bgmRestoreDuration = 0.5f;
+        [Tooltip("Duração da restauração de pitch/volume no revive (por omissão alinhada com o Revive Fade).")]
+        [SerializeField, Min(0.01f)] private float bgmRestoreDuration = 1f;
 
         [Header("Heartbeat (via Vignette)")]
         [Tooltip("Controlador da vinheta que toca o batimento; silenciado no game over.")]
@@ -62,6 +62,10 @@ namespace MolimoByLulucaGameDev
         [SerializeField] private AudioSource ambientAudio;
         [SerializeField, Min(0.01f)] private float ambientFadeOutDuration = 2f;
         [SerializeField, Min(0.01f)] private float ambientRestoreDuration = 0.5f;
+
+        [Header("Revive Fade (smooth)")]
+        [Tooltip("Duração do fade suave da vinheta de morte e da UI de contagem/derrota no revive.")]
+        [SerializeField, Min(0.01f)] private float reviveFadeDuration = 1f;
 
         [Header("Revive Input (optional)")]
         [Tooltip("Ativa uma tecla do New Input System para cancelar a contagem/reviver.")]
@@ -100,6 +104,10 @@ namespace MolimoByLulucaGameDev
         private float ambientOriginalVolume = 1f;
         private float ambientTimer;
 
+        private bool reviveFading;
+        private float reviveFadeTimer;
+        private Color countdownOriginalColor = Color.white;
+
         private void OnEnable()
         {
             ResetVisualState();
@@ -127,8 +135,8 @@ namespace MolimoByLulucaGameDev
 
         private void Update()
         {
-            // Sem custo por frame enquanto ociosa e sem transições de áudio pendentes.
-            if (state == CountdownState.Idle &&
+            // Sem custo por frame enquanto ociosa e sem fades/transições de áudio pendentes.
+            if (state == CountdownState.Idle && !reviveFading &&
                 !bgmTapeStopActive && !bgmRestoring &&
                 !ambientFading && !ambientRestoring) return;
 
@@ -144,6 +152,8 @@ namespace MolimoByLulucaGameDev
             {
                 TickDefeatFade();
             }
+
+            if (reviveFading) TickReviveFadeOut();
 
             TickAudio();
         }
@@ -177,7 +187,7 @@ namespace MolimoByLulucaGameDev
         {
             if (state == CountdownState.Idle) return;
 
-            ResetVisualState();
+            BeginReviveFadeOut();
             state = CountdownState.Idle;
 
             // Devolve o jogador ao estado vivo (saúde, física, animação de levantar,
@@ -185,9 +195,9 @@ namespace MolimoByLulucaGameDev
             if (playerBrain != null)
                 playerBrain.Revive();
 
-            // Limpa imediatamente a vinheta de morte em vez de esperar pelo fade de cura.
+            // Limpa a vinheta de morte com fade suave, coordenado com o fade in da BGM.
             if (vignetteController != null)
-                vignetteController.ResetVignetteToAlive();
+                vignetteController.FadeToAliveHealth(reviveFadeDuration);
 
             BeginAudioRestore();
             onRevived?.Invoke();
@@ -301,6 +311,11 @@ namespace MolimoByLulucaGameDev
 
         private void ResetVisualState()
         {
+            // Se um fade de revive foi cancelado a meio (novo run/disable), desfaz o alpha.
+            if (reviveFading && countdownText != null)
+                countdownText.color = countdownOriginalColor;
+            reviveFading = false;
+
             remainingSeconds = countdownStartValue;
             lastDisplayedSecond = -1;
             pulsePhase = 0f;
@@ -326,6 +341,57 @@ namespace MolimoByLulucaGameDev
             var cache = new string[100];
             for (int i = 0; i < 100; i++) cache[i] = i.ToString("00");
             return cache;
+        }
+
+        // ---------------- Revive fade out (UI suave) ----------------
+
+        /// <summary>
+        /// Prepara o fade out suave da UI (texto de contagem + painel de derrota)
+        /// em vez de os esconder instantaneamente. Cancela/atropela qualquer fade
+        /// de derrota a meio sem tweens conflitantes.
+        /// </summary>
+        private void BeginReviveFadeOut()
+        {
+            defeatFadeProgress = 0f;
+
+            // O painel deixa de bloquear input logo no início; o visual é que faz fade.
+            if (defeatPanel != null)
+            {
+                defeatPanel.blocksRaycasts = false;
+                defeatPanel.interactable = false;
+            }
+
+            if (countdownText != null)
+                countdownOriginalColor = countdownText.color;
+
+            reviveFading = true;
+            reviveFadeTimer = 0f;
+        }
+
+        private void TickReviveFadeOut()
+        {
+            reviveFadeTimer += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(reviveFadeTimer / reviveFadeDuration);
+
+            if (countdownText != null)
+            {
+                Color c = countdownOriginalColor;
+                countdownText.color = new Color(c.r, c.g, c.b, c.a * (1f - t));
+            }
+
+            if (defeatPanel != null)
+                defeatPanel.alpha = Mathf.Lerp(defeatPanel.alpha, 0f, t);
+
+            if (t >= 1f)
+                FinishReviveFadeOut();
+        }
+
+        private void FinishReviveFadeOut()
+        {
+            if (countdownText != null)
+                countdownText.color = countdownOriginalColor;
+
+            ResetVisualState();
         }
 
         // ---------------- Audio flow (BGM / heartbeat / ambient) ----------------
@@ -471,8 +537,8 @@ namespace MolimoByLulucaGameDev
         }
 
         /// <summary>
-        /// Restaura imediatamente BGM/ambiente/batimento sem fades (usado no OnDisable
-        /// para nunca deixar uma fonte com pitch/volume alterados entre runs).
+        /// Restaura imediatamente BGM/ambiente/batimento/vinheta sem fades (usado no
+        /// OnDisable para nunca deixar fontes ou a vinheta alterados entre runs).
         /// </summary>
         private void SnapAudioToDefaults()
         {
@@ -505,11 +571,8 @@ namespace MolimoByLulucaGameDev
                     ambientAudio.Play();
             }
 
-            if (bgmAffected || ambientAffected)
-            {
-                if (vignetteController != null)
-                    vignetteController.RestoreHeartbeat();
-            }
+            if (vignetteController != null && (bgmAffected || ambientAffected || reviveFading))
+                vignetteController.ResetVignetteToAlive();
         }
     }
 }
