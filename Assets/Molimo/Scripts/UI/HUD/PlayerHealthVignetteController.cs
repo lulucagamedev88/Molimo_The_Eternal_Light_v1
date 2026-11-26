@@ -85,6 +85,11 @@ namespace MolimoByLulucaGameDev
         private float heartbeatFadeTimer;
         private float heartbeatFadeDuration = 1f;
 
+        private bool vignetteRestoring;
+        private float vignetteRestoreTimer;
+        private float vignetteRestoreDuration = 1f;
+        private float vignetteRestoreStartRatio;
+
         private void Awake()
         {
             if (!Application.isPlaying) return;
@@ -120,7 +125,9 @@ namespace MolimoByLulucaGameDev
 
             healthRatio = health.MaxHealth > 0f ? Mathf.Clamp01(health.CurrentHealth / health.MaxHealth) : 0f;
 
-            if (healthRatio < smoothedHealthRatio)
+            if (vignetteRestoring)
+                TickVignetteRestore();
+            else if (healthRatio < smoothedHealthRatio)
                 smoothedHealthRatio = healthRatio;
             else if (healthRatio > smoothedHealthRatio)
                 smoothedHealthRatio = Mathf.MoveTowards(smoothedHealthRatio, healthRatio, healFadeSpeed * Time.deltaTime);
@@ -182,6 +189,7 @@ namespace MolimoByLulucaGameDev
             pulsePhase = 0f;
             currentHitBoost = 0f;
             smoothedHealthRatio = 0f;
+            vignetteRestoring = false;
         }
 
         private void DetectAndPlayPulseSound(float currentCycle, bool isVignetteVisible)
@@ -254,11 +262,35 @@ namespace MolimoByLulucaGameDev
         }
 
         /// <summary>
+        /// Fades the death vignette back to the player's current (alive) health smoothly
+        /// using unscaled time, instead of waiting for the slow heal fade. Used on revive.
+        /// A new death cancels this fade automatically (HandleDied).
+        /// </summary>
+        public void FadeToAliveHealth(float fadeDuration)
+        {
+            if (health != null && health.MaxHealth > 0f)
+            {
+                healthRatio = Mathf.Clamp01(health.CurrentHealth / health.MaxHealth);
+                vignetteRestoreStartRatio = Mathf.Min(smoothedHealthRatio, healthRatio);
+            }
+            else
+            {
+                healthRatio = 1f;
+                vignetteRestoreStartRatio = Mathf.Min(smoothedHealthRatio, 1f);
+            }
+
+            vignetteRestoreDuration = Mathf.Max(0.01f, fadeDuration);
+            vignetteRestoreTimer = 0f;
+            vignetteRestoring = true;
+        }
+
+        /// <summary>
         /// Snaps the vignette back to the player's current (alive) health immediately,
-        /// instead of waiting for the slow heal fade. Used on revive/reset.
+        /// instead of waiting for the slow heal fade. Used on reset/disable.
         /// </summary>
         public void ResetVignetteToAlive()
         {
+            vignetteRestoring = false;
             RestoreHeartbeat();
             currentHitBoost = 0f;
 
@@ -285,6 +317,21 @@ namespace MolimoByLulucaGameDev
                 pulseAudioSource.volume = Mathf.Lerp(heartbeatOriginalVolume, 0f, t);
 
             if (t >= 1f) heartbeatFading = false;
+        }
+
+        private void TickVignetteRestore()
+        {
+            vignetteRestoreTimer += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(vignetteRestoreTimer / vignetteRestoreDuration);
+
+            float target = health != null && health.MaxHealth > 0f
+                ? Mathf.Clamp01(health.CurrentHealth / health.MaxHealth)
+                : 1f;
+
+            smoothedHealthRatio = Mathf.Lerp(vignetteRestoreStartRatio, target, t);
+            healthRatio = target;
+
+            if (t >= 1f) vignetteRestoring = false;
         }
 
         private float ComputeVisibility(float ratio, VignetteLayer layer)
