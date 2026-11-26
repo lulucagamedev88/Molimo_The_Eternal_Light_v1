@@ -114,8 +114,8 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
 # --- Adicoes para poupar dados neste envio ---
-FrankWarrior/
-FrankWarrior.meta
+Frank_Warrior/
+Frank_Warrior.meta
 Assets/ThirdParty/VFX/
 Assets/ThirdParty/VFX.meta
 Assets/ThirdParty/Zacxophone/
