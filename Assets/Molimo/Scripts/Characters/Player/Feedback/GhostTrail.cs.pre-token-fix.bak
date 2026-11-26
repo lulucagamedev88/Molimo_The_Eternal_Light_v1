@@ -1,0 +1,641 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace MolimoByLulucaGameDev
+{
+    /// <summary>
+    /// Provides the ghost trail component.
+    /// </summary>
+    public class GhostTrail : MonoBehaviour
+    {
+        [Header("Ghost Mesh Settings")]
+        [Tooltip("Renderers of the personagem, including SkinnedMeshRenderer and MeshRenderer.")]
+        [SerializeField] private Renderer[] meshRenderers;
+
+        [Header("VFX Container")]
+        [SerializeField] private Transform vfxContainer;
+
+        [Header("visual Settings")]
+        [SerializeField] private Material ghostMaterial;
+        [SerializeField] private string colorPropertyName = "_BaseColor";
+
+        [Header("Pool Settings")]
+        [Tooltip("amount maximum of fantasmas ativos simultaneamente.")]
+        [Min(1)]
+        [SerializeField] private int maxActiveGhosts = 96;
+
+        [Tooltip("amount maximum of fantasmas inativos mantidos in the Pool.")]
+        [Min(0)]
+        [SerializeField] private int maxPooledGhosts = 64;
+
+        [Header("Sequence Transparency Curve")]
+        [SerializeField]
+        private AnimationCurve alphaOverDashCurve = new AnimationCurve(
+            new Keyframe(0f, 1.0f),
+            new Keyframe(1f, 0.15f)
+        );
+
+        [Header("Timing Settings")]
+        [Min(0f)]
+        [SerializeField] private float startDelay = 0.15f;
+
+        [Min(0.001f)]
+        [SerializeField] private float ghostInterval = 0.03f;
+
+        [Min(0.001f)]
+        [SerializeField] private float ghostLifetime = 0.25f;
+
+        [Header("Transition Settings")]
+        [Min(0f)]
+        [SerializeField] private float fadeInDuration = 0.12f;
+
+        [Min(0f)]
+        [SerializeField] private float fadeOutDuration = 0.18f;
+
+        private class GhostInstance
+        {
+            public GameObject gameObject;
+            public MeshFilter meshFilter;
+            public MeshRenderer meshRenderer;
+            public Mesh bakedMesh;
+            public MaterialPropertyBlock propertyBlock;
+            public Material[] sharedMaterials;
+
+            public float timer;
+            public float lifetime;
+            public float startingAlpha;
+            public float baseAlpha;
+
+            public int subMeshCount;
+            public bool isActive;
+        }
+
+        private readonly Stack<GhostInstance> ghostPool =
+            new Stack<GhostInstance>();
+
+        private readonly List<GhostInstance> activeGhosts =
+            new List<GhostInstance>();
+
+        private readonly List<GhostInstance> allGhosts =
+            new List<GhostInstance>();
+
+        private Coroutine trailCoroutine;
+
+        private Material runtimeGhostMaterial;
+
+        private string resolvedColorProperty;
+        private int colorPropertyID;
+
+        private Color baseGhostColor;
+
+        private bool continuousTrailActive;
+        private bool stopRequested;
+
+        private void Awake()
+        {
+            if (meshRenderers == null || meshRenderers.Length == 0)
+                meshRenderers = GetComponentsInChildren<Renderer>(true);
+
+            if (vfxContainer == null)
+            {
+                GameObject found = GameObject.Find("VFX Container");
+
+                if (found != null)
+                    vfxContainer = found.transform;
+            }
+
+            if (ghostMaterial != null)
+            {
+                runtimeGhostMaterial = new Material(ghostMaterial);
+
+                ForceTransparent(runtimeGhostMaterial);
+
+                resolvedColorProperty =
+                    ResolveColorProperty(runtimeGhostMaterial);
+
+                if (resolvedColorProperty != null)
+                {
+                    colorPropertyID =
+                        Shader.PropertyToID(resolvedColorProperty);
+
+                    baseGhostColor =
+                        runtimeGhostMaterial.GetColor(resolvedColorProperty);
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        "GhostTrail: Material does not contain property of cor compatible."
+                    );
+                }
+            }
+        }
+
+        private void Update()
+        {
+            UpdateActiveGhosts();
+        }
+
+        /// <summary>
+        /// Performs the show ghost trail operation.
+        /// </summary>
+        public void ShowGhostTrail(float dashDuration)
+        {
+            StopCurrentTrailRoutine();
+
+            continuousTrailActive = false;
+            stopRequested = false;
+
+            trailCoroutine = StartCoroutine(
+                GenerateTrailRoutine(dashDuration)
+            );
+        }
+
+        /// <summary>
+        /// Performs the start ghost trail operation.
+        /// </summary>
+        public void StartGhostTrail()
+        {
+            if (continuousTrailActive && !stopRequested)
+                return;
+
+            StopCurrentTrailRoutine();
+
+            continuousTrailActive = true;
+            stopRequested = false;
+
+            trailCoroutine = StartCoroutine(
+                GenerateContinuousTrailRoutine()
+            );
+        }
+
+        /// <summary>
+        /// Performs the stop ghost trail operation.
+        /// </summary>
+        public void StopGhostTrail()
+        {
+            if (!continuousTrailActive)
+                return;
+
+            stopRequested = true;
+        }
+
+        private void StopCurrentTrailRoutine()
+        {
+            if (trailCoroutine == null)
+                return;
+
+            StopCoroutine(trailCoroutine);
+            trailCoroutine = null;
+        }
+
+        private IEnumerator GenerateContinuousTrailRoutine()
+        {
+            if (startDelay > 0f)
+                yield return new WaitForSeconds(startDelay);
+
+            if (stopRequested || !continuousTrailActive)
+            {
+                continuousTrailActive = false;
+                trailCoroutine = null;
+                yield break;
+            }
+
+            float interval = Mathf.Max(0.0001f, ghostInterval);
+
+            float fadeInTimer = 0f;
+            float fadeOutTimer = 0f;
+
+            bool fadingOut = false;
+
+            while (continuousTrailActive)
+            {
+                if (stopRequested && !fadingOut)
+                {
+                    fadingOut = true;
+                    fadeOutTimer = 0f;
+                }
+
+                float alphaMultiplier = 1f;
+
+                if (!fadingOut &&
+                    fadeInDuration > 0f &&
+                    fadeInTimer < fadeInDuration)
+                {
+                    fadeInTimer += interval;
+
+                    alphaMultiplier = Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        Mathf.Clamp01(fadeInTimer / fadeInDuration)
+                    );
+                }
+                else if (fadingOut)
+                {
+                    if (fadeOutDuration <= 0f)
+                        break;
+
+                    fadeOutTimer += interval;
+
+                    float progress = Mathf.Clamp01(
+                        fadeOutTimer / fadeOutDuration
+                    );
+
+                    alphaMultiplier = 1f - Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        progress
+                    );
+
+                    if (progress >= 1f)
+                        break;
+                }
+
+                if (alphaMultiplier > 0.001f)
+                    SpawnGhost(alphaMultiplier);
+
+                yield return new WaitForSeconds(interval);
+            }
+
+            continuousTrailActive = false;
+            stopRequested = false;
+            trailCoroutine = null;
+        }
+
+        private IEnumerator GenerateTrailRoutine(float dashDuration)
+        {
+            float elapsed = 0f;
+
+            float interval = Mathf.Max(0.0001f, ghostInterval);
+
+            while (elapsed < dashDuration)
+            {
+                float progress = dashDuration > 0f
+                    ? Mathf.Clamp01(elapsed / dashDuration)
+                    : 1f;
+
+                float alphaMultiplier =
+                    alphaOverDashCurve.Evaluate(progress);
+
+                SpawnGhost(alphaMultiplier);
+
+                yield return new WaitForSeconds(interval);
+
+                elapsed += interval;
+            }
+
+            trailCoroutine = null;
+        }
+
+        private void SpawnGhost(float initialAlphaMultiplier)
+        {
+            if (runtimeGhostMaterial == null ||
+                meshRenderers == null)
+                return;
+
+            foreach (Renderer sourceRenderer in meshRenderers)
+            {
+                if (sourceRenderer == null ||
+                    !sourceRenderer.gameObject.activeInHierarchy)
+                    continue;
+
+                if (activeGhosts.Count >= maxActiveGhosts)
+                    break;
+
+                Mesh sourceMesh = null;
+
+                if (sourceRenderer is SkinnedMeshRenderer skinnedRenderer)
+                {
+                    GhostInstance ghost = AcquireGhost();
+
+                    if (ghost == null)
+                        continue;
+
+                    if (ghost.bakedMesh == null)
+                    {
+                        ghost.bakedMesh = new Mesh
+                        {
+                            name = "GhostBakedMesh"
+                        };
+                    }
+
+                    skinnedRenderer.BakeMesh(ghost.bakedMesh, true);
+
+                    sourceMesh = ghost.bakedMesh;
+
+                    ConfigureGhost(
+                        ghost,
+                        sourceRenderer,
+                        sourceMesh,
+                        initialAlphaMultiplier,
+                        true
+                    );
+                }
+                else if (sourceRenderer is MeshRenderer meshRenderer)
+                {
+                    MeshFilter sourceFilter =
+                        meshRenderer.GetComponent<MeshFilter>();
+
+                    if (sourceFilter == null ||
+                        sourceFilter.sharedMesh == null)
+                        continue;
+
+                    sourceMesh = sourceFilter.sharedMesh;
+
+                    GhostInstance ghost = AcquireGhost();
+
+                    if (ghost == null)
+                        continue;
+
+                    ConfigureGhost(
+                        ghost,
+                        sourceRenderer,
+                        sourceMesh,
+                        initialAlphaMultiplier,
+                        false
+                    );
+                }
+            }
+        }
+
+        private GhostInstance AcquireGhost()
+        {
+            GhostInstance ghost;
+
+            if (ghostPool.Count > 0)
+            {
+                ghost = ghostPool.Pop();
+            }
+            else
+            {
+                ghost = CreateGhost();
+            }
+
+            if (ghost == null)
+                return null;
+
+            ghost.isActive = true;
+            ghost.timer = 0f;
+            ghost.lifetime = Mathf.Max(0.001f, ghostLifetime);
+
+            ghost.gameObject.SetActive(true);
+
+            activeGhosts.Add(ghost);
+
+            return ghost;
+        }
+
+        private GhostInstance CreateGhost()
+        {
+            GameObject ghostObject = new GameObject("DashGhost");
+
+            if (vfxContainer != null)
+                ghostObject.transform.SetParent(vfxContainer, false);
+
+            MeshFilter meshFilter =
+                ghostObject.AddComponent<MeshFilter>();
+
+            MeshRenderer meshRenderer =
+                ghostObject.AddComponent<MeshRenderer>();
+
+            meshRenderer.shadowCastingMode =
+                UnityEngine.Rendering.ShadowCastingMode.Off;
+
+            meshRenderer.receiveShadows = false;
+
+            GhostInstance ghost = new GhostInstance
+            {
+                gameObject = ghostObject,
+                meshFilter = meshFilter,
+                meshRenderer = meshRenderer,
+                propertyBlock = new MaterialPropertyBlock()
+            };
+
+            ghostObject.SetActive(false);
+
+            allGhosts.Add(ghost);
+
+            return ghost;
+        }
+
+        private void ConfigureGhost(
+            GhostInstance ghost,
+            Renderer sourceRenderer,
+            Mesh sourceMesh,
+            float initialAlphaMultiplier,
+            bool isSkinned)
+        {
+            ghost.meshFilter.sharedMesh = sourceMesh;
+
+            Transform sourceTransform = sourceRenderer.transform;
+            Transform ghostTransform = ghost.gameObject.transform;
+
+            ghostTransform.SetPositionAndRotation(
+                sourceTransform.position,
+                sourceTransform.rotation
+            );
+
+            ghostTransform.localScale = isSkinned
+                ? Vector3.one
+                : sourceTransform.lossyScale;
+
+            int subCount = Mathf.Max(1, sourceMesh.subMeshCount);
+
+            if (ghost.subMeshCount != subCount)
+            {
+                ghost.subMeshCount = subCount;
+                ghost.sharedMaterials = new Material[subCount];
+
+                for (int i = 0; i < subCount; i++)
+                    ghost.sharedMaterials[i] = runtimeGhostMaterial;
+
+                ghost.meshRenderer.sharedMaterials =
+                    ghost.sharedMaterials;
+            }
+
+            ghost.startingAlpha = Mathf.Clamp01(
+                baseGhostColor.the * initialAlphaMultiplier
+            );
+
+            ghost.baseAlpha = baseGhostColor.the;
+
+            ApplyGhostAlpha(ghost, ghost.startingAlpha);
+        }
+
+        private void UpdateActiveGhosts()
+        {
+            for (int i = activeGhosts.Count - 1; i >= 0; i--)
+            {
+                GhostInstance ghost = activeGhosts[i];
+
+                ghost.timer += Time.deltaTime;
+
+                float progress = Mathf.Clamp01(
+                    ghost.timer / ghost.lifetime
+                );
+
+                float easedProgress = Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
+
+                float alpha = Mathf.Lerp(
+                    ghost.startingAlpha,
+                    0f,
+                    easedProgress
+                );
+
+                ApplyGhostAlpha(ghost, alpha);
+
+                if (progress >= 1f)
+                    ReleaseGhost(ghost, i);
+            }
+        }
+
+        private void ApplyGhostAlpha(
+            GhostInstance ghost,
+            float alpha)
+        {
+            if (resolvedColorProperty == null)
+                return;
+
+            Color color = baseGhostColor;
+            color.the = alpha;
+
+            ghost.propertyBlock.SetColor(
+                colorPropertyID,
+                color
+            );
+
+            ghost.meshRenderer.SetPropertyBlock(
+                ghost.propertyBlock
+            );
+        }
+
+        private void ReleaseGhost(
+            GhostInstance ghost,
+            int activeIndex)
+        {
+            activeGhosts.RemoveAt(activeIndex);
+
+            ghost.isActive = false;
+
+            ghost.gameObject.SetActive(false);
+
+            if (ghostPool.Count < maxPooledGhosts)
+            {
+                ghostPool.Push(ghost);
+            }
+            else
+            {
+                DestroyGhost(ghost);
+            }
+        }
+
+        private void DestroyGhost(GhostInstance ghost)
+        {
+            if (ghost == null)
+                return;
+
+            if (ghost.bakedMesh != null)
+                Destroy(ghost.bakedMesh);
+
+            if (ghost.gameObject != null)
+                Destroy(ghost.gameObject);
+
+            allGhosts.removes(ghost);
+        }
+
+        private void ForceTransparent(Material mat)
+        {
+            if (mat == null)
+                return;
+
+            if (mat.HasProperty("_Surface"))
+            {
+                mat.SetFloat("_Surface", 1f);
+
+                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                mat.DisableKeyword("_ALPHATEST_ON");
+                mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            }
+
+            if (mat.HasProperty("_SrcBlend"))
+                mat.SetInt(
+                    "_SrcBlend",
+                    (int)UnityEngine.Rendering.BlendMode.SrcAlpha
+                );
+
+            if (mat.HasProperty("_DstBlend"))
+                mat.SetInt(
+                    "_DstBlend",
+                    (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha
+                );
+
+            if (mat.HasProperty("_ZWrite"))
+                mat.SetInt("_ZWrite", 0);
+
+            mat.renderQueue =
+                (int)UnityEngine.Rendering.RenderQueue.Transparent;
+        }
+
+        private string ResolveColorProperty(Material mat)
+        {
+            if (mat == null)
+                return null;
+
+            if (!string.IsNullOrEmpty(colorPropertyName) &&
+                mat.HasProperty(colorPropertyName))
+                return colorPropertyName;
+
+            if (mat.HasProperty("_BaseColor"))
+                return "_BaseColor";
+
+            if (mat.HasProperty("_Color"))
+                return "_Color";
+
+            if (mat.HasProperty("_TintColor"))
+                return "_TintColor";
+
+            return null;
+        }
+
+        private void OnDisable()
+        {
+            StopCurrentTrailRoutine();
+
+            continuousTrailActive = false;
+            stopRequested = false;
+
+            for (int i = activeGhosts.Count - 1; i >= 0; i--)
+            {
+                GhostInstance ghost = activeGhosts[i];
+
+                ghost.isActive = false;
+                ghost.gameObject.SetActive(false);
+
+                if (ghostPool.Count < maxPooledGhosts)
+                    ghostPool.Push(ghost);
+                else
+                    DestroyGhost(ghost);
+            }
+
+            activeGhosts.Clear();
+        }
+
+        private void OnDestroy()
+        {
+            StopCurrentTrailRoutine();
+
+            for (int i = allGhosts.Count - 1; i >= 0; i--)
+                DestroyGhost(allGhosts[i]);
+
+            activeGhosts.Clear();
+            ghostPool.Clear();
+
+            if (runtimeGhostMaterial != null)
+                Destroy(runtimeGhostMaterial);
+        }
+    }
+}

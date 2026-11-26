@@ -1,0 +1,571 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+namespace MolimoByLulucaGameDev
+{
+    [RequireComponent(typeof(Rigidbody), typeof(Collider))]
+    /// <summary>
+    /// Provides the weapon pickup component.
+    /// </summary>
+    public class WeaponPickup : MonoBehaviour
+    {
+        /// <summary>
+        /// Defines the available pickup type values.
+        /// </summary>
+        public enum PickupType { Sword, Shield }
+
+        private static readonly List<WeaponPickup> s_activePickups = new List<WeaponPickup>();
+
+        [Header("Tipo")]
+        [SerializeField] private PickupType pickupType = PickupType.Sword;
+
+        [Header("references")]
+        [SerializeField] private PlayerWeaponEquipment weaponEquip;
+
+        [Header("Respawn in the Abismo")]
+        [Tooltip("reference DIRECTA (not sobrevive the Instantiate).")]
+        [SerializeField] private Transform respawnPoint;
+
+        [Tooltip("TAG of the GameObject (Sobrevive the Clones). Ex: 'WeaponRespawn'.")]
+        [SerializeField] private string respawnPointTag = "WeaponRespawn";
+
+        [Tooltip("NOME of the GameObject in the scene (Fallback). Ex: 'RespawnpointWeapons'.")]
+        [SerializeField] private string respawnPointName = "RespawnpointWeapons";
+
+        [Header("visual of the Respawn")]
+        [Tooltip("Offset of position somado when the RespawnPoint. Use the Y if quiser that the weapon " +
+                 "surja the little more alta in the ar is cair naturalmente.")]
+        [SerializeField] private Vector3 spawnPositionOffset = new Vector3(0f, 0.5f, 0f);
+
+        [Tooltip("rotation local aplicada when the appear. is deitar the sword, tente (90, 0, 0) or (-90, 0, 0).")]
+        [SerializeField] private Vector3 spawnRotationOffset = new Vector3(90f, 0f, 0f);
+
+        [Tooltip("rotates the weapon aleatoriamente in the axis Y is parecer that caiu of forma natural.")]
+        [SerializeField] private bool randomizeYRotation = true;
+
+        [Header("Tempos of recovery")]
+        [Tooltip("time (s) that the pickup remains imune when the abismo after be recuperado. " +
+                 "must be > physicsEnableDelay + time of fall.")]
+        [SerializeField] private float immunityDuration = 2.0f;
+
+        [Tooltip("time (s) that the pickup remains Kinematic in the ar before falling (gives time when the " +
+                 "Physics.SyncTransforms and prevents explosions).")]
+        [SerializeField] private float physicsEnableDelay = 0.5f;
+
+        [Header("Fallback of safety")]
+        [Tooltip("if the pickup is below deste Y without the trigger of the abismo the apanhar, " +
+                 "is recuperado automatically. must estar below of the your abismo.")]
+        [SerializeField] private float voidFallbackY = -20f;
+
+        private InputSystem_Actions inputActions;
+        private Rigidbody rb;
+        private Collider col;
+        private PlayerBrain _playerBrain;
+
+        private bool canPickup;
+        private bool isSettling;
+        private float settleTimer;
+        private float _lastRecoveryTime = -100f;
+        private Transform _cachedRespawnPoint;
+
+        // --- state of recovery ---
+        private float _immunityEndTime = 0f;
+        private float _physicsEnableTime = 0f;
+        private bool _isWaitingForPhysics = false;
+
+        // --- state of "STRANDED" during TELEPORTE ---
+        // true when this pickup was desativado (tipicamente by area old)
+        // while the TeleportManager estava in transition. the handler of end of
+        // transition uses isto is the recover is the RespawnPoint.
+        private bool _wasTransitioningDuringDisable;
+
+        // --- state "in the inventory" ---
+        // true when the Player apanhou this pickup. the objecto remains DESATIVADO
+        // (never destroyed) and is reaproveitado when the Player larga the weapon.
+        private bool _isHeld;
+
+        public bool IsHeld => _isHeld;
+
+        public bool IsImmuneToAbyss => Time.time < _immunityEndTime;
+
+        public bool HasCustomRespawnPoint =>
+            respawnPoint != null ||
+            !string.IsNullOrEmpty(respawnPointTag) ||
+            !string.IsNullOrEmpty(respawnPointName);
+
+        /// <summary>
+        /// Performs the notify all of player reset operation.
+        /// </summary>
+        public static void NotifyAllOfPlayerReset()
+        {
+            if (s_activePickups.Count == 0) return;
+            var snapshot = new List<WeaponPickup>(s_activePickups);
+            foreach (var p in snapshot)
+                if (p != null) p.OnPlayerReset();
+        }
+
+        #region Unity Lifecycle
+
+        private void Awake()
+        {
+            inputActions = new InputSystem_Actions();
+            rb = GetComponent<Rigidbody>();
+            col = GetComponent<Collider>();
+
+            // Subscrever always (same that this GameObject esteja desativado,
+            // the evento static chega in the same when the handler).
+            TeleportManager.OnTeleportComplete += HandleTeleportComplete;
+        }
+
+        private void OnEnable()
+        {
+            if (!s_activePickups.Contains(this)) s_activePickups.Add(this);
+
+            var pr = PlayerReference.Instance;
+            if (pr != null && pr.Root != null)
+            {
+                if (_playerBrain == null) _playerBrain = pr.Root.GetComponentInChildren<PlayerBrain>();
+                if (weaponEquip == null) weaponEquip = pr.Root.GetComponentInChildren<PlayerWeaponEquipment>();
+            }
+        }
+
+        private void OnDisable()
+        {
+            s_activePickups.removes(this);
+
+            // Desativado by ter sido apanhado by Player: not is "stranded".
+            if (_isHeld)
+            {
+                _wasTransitioningDuringDisable = false;
+                return;
+            }
+
+            // if fomos desativados while the TeleportManager is in transition,
+            // is sinal forte of that the area old in the desativou the middle of the
+            // teleporte (ficamos "paralisados in the level previous"). Marcamos is
+            // the handler of end of transition in the recover.
+            if (TeleportManager.Instance != null && TeleportManager.Instance.IsTransitioning)
+                _wasTransitioningDuringDisable = true;
+
+            // if estava the middle of the recovery when was desativado,
+            // clears the state is the next OnEnable not remain stuck.
+            if (_isWaitingForPhysics)
+            {
+                _isWaitingForPhysics = false;
+                // Deixa the Rigidbody num state predictable
+                if (rb != null) { rb.isKinematic = true; rb.useGravity = false; }
+            }
+        }
+
+        private void Update()
+        {
+            // 0) if is the middle of the recovery, nobody mexe until the timer expirar.
+            if (_isWaitingForPhysics)
+            {
+                if (Time.time >= _physicsEnableTime)
+                {
+                    _isWaitingForPhysics = false;
+                    EnablePhysics();
+                }
+                return;
+            }
+
+            // 1) Fallback of the empty (only corre if the trigger of the abismo not apanhrou)
+            if (transform.position.y < voidFallbackY && !IsImmuneToAbyss)
+            {
+                RecoverFromAbyss();
+                return;
+            }
+
+            // 2) Assentar in the ground
+            if (isSettling)
+            {
+                settleTimer += Time.deltaTime;
+                if (settleTimer > 0.4f && (rb.IsSleeping() || rb.linearVelocity.sqrMagnitude < 0.01f))
+                    SettleAsPickup();
+                return;
+            }
+
+            // 3) Input of pickup
+            if (!canPickup) return;
+
+            bool isGamepadNorthPressed = Gamepad.current != null && Gamepad.current.buttonNorth.wasPressedThisFrame;
+            bool isInteractPressed = inputActions != null && inputActions.Player.Interact.WasPressedThisFrame();
+
+            if (isGamepadNorthPressed || isInteractPressed) PerformPickup();
+        }
+
+        private void OnDestroy()
+        {
+            TeleportManager.OnTeleportComplete -= HandleTeleportComplete;
+            if (inputActions != null) { inputActions.Player.Disable(); inputActions.Dispose(); }
+        }
+
+        #endregion
+
+        #region reaction when the end of the Teleporte (recover if ficou "stranded")
+
+        /// <summary>
+        /// Chamado pelo TeleportManager quando uma transição termina.
+        ///
+        /// Se este pickup estava "em voo" (isSettling), à espera de física
+        /// (_isWaitingForPhysics) ou foi desativado pela área antiga
+        /// (_wasTransitioningDuringDisable), significa que ficou "stranded"
+        /// no nível anterior. Nesse caso:
+        ///   1) Se estiver inativo (filho da área antiga), reparenta para a área
+        ///      do RespawnPoint e reativa — sem isto continuaria invisível.
+        ///   2) Chama RecoverFromAbyss() para o reposicionar e cair de novo.
+        /// </summary>
+        private void HandleTeleportComplete(GameObject targetArea)
+        {
+            // Pickup guardado in the inventory of the player: never reativar.
+            if (_isHeld) return;
+
+            bool wasStranded =
+                _wasTransitioningDuringDisable ||
+                isSettling ||
+                _isWaitingForPhysics;
+
+            _wasTransitioningDuringDisable = false;
+
+            if (!wasStranded) return;
+
+            // already the recover → RecoverFromAbyss faria early-return; nothing the of the.
+            if (_isWaitingForPhysics) return;
+
+            // if estamos inativos (tipicamente because the area old in the desativou),
+            // have of reparentar and reativar, otherwise ficamos invisible in the place errado.
+            if (!gameObject.activeInHierarchy)
+            {
+                Transform respawnT = GetRespawnPoint();
+                Transform safeParent = null;
+
+                if (respawnT != null && respawnT.gameObject.activeInHierarchy)
+                {
+                    safeParent = respawnT.parent;
+                    if (safeParent != null && !safeParent.gameObject.activeInHierarchy)
+                        safeParent = null; // parent also inativo → use root
+                }
+
+                transform.SetParent(safeParent, worldPositionStays: false);
+                gameObject.SetActive(true);
+            }
+
+            // repositions in the RespawnPoint (with the fluxo kinematic → teleport →
+            // kinematic off already existing) and agenda the fall is when is active.
+            RecoverFromAbyss();
+        }
+
+        #endregion
+
+        #region recovery of the Abismo (Kinematic → Teleport → Kinematic OFF)
+
+        /// <summary>
+        /// Fluxo de recuperação:
+        ///   1) Kinematic ON (congela física, guarda velocidade)
+        ///   2) Teleport para o Respawnpoint (mesmo GameObject, NUNCA recriado)
+        ///   3) Aguarda <see cref="physicsEnableDelay"/> segundos
+        ///   4) Kinematic OFF + gravidade → cai para o chão
+        ///
+        /// Nunca destrói nem instancia. O objeto é sempre o mesmo.
+        /// </summary>
+        public void RecoverFromAbyss()
+        {
+            // Guard: if already estamos in recovery, not reinicies.
+            if (_isWaitingForPhysics)
+            {
+                return;
+            }
+
+            // --- Resolve destino ---
+            Transform target = GetRespawnPoint();
+            Vector3 targetPos;
+            Quaternion targetRot;
+
+            if (target != null)
+            {
+                targetPos = target.position + target.TransformVector(spawnPositionOffset);
+                targetRot = target.rotation * Quaternion.Euler(spawnRotationOffset);
+                if (randomizeYRotation)
+                    targetRot *= Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+            }
+            else
+            {
+                // Fallback 1: position of the player
+                var pr = PlayerReference.Instance;
+                if (pr != null && pr.Root != null)
+                {
+                    targetPos = pr.Root.position + Vector3.up * 1.5f + spawnPositionOffset;
+                    targetRot = pr.Root.rotation * Quaternion.Euler(spawnRotationOffset);
+                }
+                else
+                {
+                    // Fallback 2: rises the little above of the voidFallbackY and tries of novo.
+                    // never apagar the GameObject — keeps-in the alive is the trigger/fallback.
+                    targetPos = transform.position + Vector3.up * 5f;
+                    targetRot = transform.rotation;
+                }
+            }
+
+            // --- Marca state ---
+            _lastRecoveryTime = Time.unscaledTime;
+            _immunityEndTime = Time.time + immunityDuration;
+
+            // --- Passo 1: Kinematic ON ---
+            if (col != null) col.enabled = false;
+
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
+
+            // --- Passo 2: Teleport (transform + rb, is ensure) ---
+            transform.SetPositionAndRotation(targetPos, targetRot);
+            if (rb != null)
+            {
+                rb.position = targetPos;
+                rb.rotation = targetRot;
+            }
+            Physics.SyncTransforms();
+
+            // Religa collider (already in the destino)
+            if (col != null) col.enabled = true;
+
+            // --- Passo 3: Agenda Kinematic OFF ---
+            _isWaitingForPhysics = true;
+            _physicsEnableTime = Time.time + physicsEnableDelay;
+        }
+
+        /// <summary>Chamado by Update when the timer of physics expira.</summary>
+        private void EnablePhysics()
+        {
+            isSettling = true;
+            settleTimer = 0f;
+            canPickup = false;
+
+            if (col != null) col.isTrigger = false;
+
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+                rb.useGravity = true;
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                rb.WakeUp();
+            }
+        }
+
+        #endregion
+
+        #region Respawn Point Resolution
+
+        private Transform GetRespawnPoint()
+        {
+            if (respawnPoint != null) return respawnPoint;
+            if (_cachedRespawnPoint != null) return _cachedRespawnPoint;
+
+            if (!string.IsNullOrEmpty(respawnPointTag))
+            {
+                try
+                {
+                    var go = GameObject.FindWithTag(respawnPointTag);
+                    if (go != null) { _cachedRespawnPoint = go.transform; return _cachedRespawnPoint; }
+                }
+                catch (UnityException) { }
+            }
+
+            if (!string.IsNullOrEmpty(respawnPointName))
+            {
+                var goByName = GameObject.Find(respawnPointName);
+                if (goByName != null) { _cachedRespawnPoint = goByName.transform; return _cachedRespawnPoint; }
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region Physics Settle / Pickup
+
+        /// <summary>
+        /// Performs the throw with physics operation.
+        /// </summary>
+        public void ThrowWithPhysics(Vector3 force, ForceMode forceMode)
+        {
+            isSettling = true;
+            settleTimer = 0f;
+            canPickup = false;
+
+            if (col != null) col.isTrigger = false;
+
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+                rb.useGravity = true;
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                rb.WakeUp();
+                rb.AddForce(force, forceMode);
+            }
+        }
+
+        private void SettleAsPickup()
+        {
+            isSettling = false;
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
+            if (col != null) col.isTrigger = true;
+            CheckOverlapPlayer();
+        }
+
+        /// <summary>
+        /// Handles player reset events.
+        /// </summary>
+        public void OnPlayerReset()
+        {
+            if (_isWaitingForPhysics) return;            // already the recover
+            if (_playerBrain != null && !_playerBrain.IsAlive) return;
+            if (Time.unscaledTime - _lastRecoveryTime < 0.5f) return;
+            if (IsImmuneToAbyss) return;
+
+            bool isLost = isSettling || transform.position.y < voidFallbackY;
+            if (!isLost) return;
+
+            RecoverFromAbyss();
+        }
+
+        private void CheckOverlapPlayer()
+        {
+            if (col == null) return;
+            Collider[] overlaps = Physics.OverlapBox(col.bounds.center, col.bounds.extents, transform.rotation);
+            foreach (var overlap in overlaps)
+            {
+                if (TryResolveLiveWeaponEquip(overlap, out var targetEquip))
+                {
+                    canPickup = true; weaponEquip = targetEquip; break;
+                }
+            }
+        }
+
+        private bool TryResolveLiveWeaponEquip(Collider source, out PlayerWeaponEquipment targetEquip)
+        {
+            targetEquip = source != null ? source.GetComponentInParent<PlayerWeaponEquipment>() : null;
+            if (targetEquip == null) return false;
+
+            PlayerBrain targetBrain = targetEquip.GetComponentInParent<PlayerBrain>();
+            return targetBrain == null || targetBrain.IsAlive;
+        }
+
+        private void PerformPickup()
+        {
+            if (weaponEquip == null) return;
+            if (!IsClosestPickupForPlayer()) return;
+
+            PlayerBrain targetBrain = weaponEquip.GetComponentInParent<PlayerBrain>();
+            if (targetBrain != null && !targetBrain.IsAlive) return;
+
+            // Regista this objecto in the PlayerWeaponEquipment is be reaproveitado when the largar
+            // (instead of the destroy and the PlayerWeaponEquipment instanciar the clone).
+            weaponEquip.RegisterHeldPickup(pickupType, this);
+
+            if (pickupType == PickupType.Shield) weaponEquip.EquipShield();
+            else weaponEquip.EquipWeapon();
+
+            HoldInInventory();
+        }
+
+        /// <summary>
+        /// Guarda o pickup no "inventário": fica desativado e fora de qualquer
+        /// área (raiz da cena), pronto a ser reaproveitado por
+        /// <see cref="ReleaseFromPlayer"/>. NUNCA é destruído.
+        /// </summary>
+        private void HoldInInventory()
+        {
+            _isHeld = true;
+            canPickup = false;
+            isSettling = false;
+            _isWaitingForPhysics = false;
+            _wasTransitioningDuringDisable = false;
+
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
+            if (col != null) col.isTrigger = true;
+
+            // exits of the area (if is child of the) is not remain stuck numa
+            // hierarchy that possa be desativada when the mudar of level.
+            transform.SetParent(null, true);
+            gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// Chamado pelo PlayerWeaponEquipment quando o Player larga a arma/escudo.
+        /// Reativa ESTE mesmo objecto na posição de drop e lança-o com física.
+        /// Se cair no Abismo, o AbyssHazardTrigger chama RecoverFromAbyss()
+        /// e ele é teleportado para o RespawnPoint (Kinematic ON → teleport →
+        /// Kinematic OFF). Nenhum clone é criado.
+        /// </summary>
+        public void ReleaseFromPlayer(Vector3 position, Quaternion rotation, Vector3 force, ForceMode forceMode)
+        {
+            _isHeld = false;
+            _isWaitingForPhysics = false;
+            _immunityEndTime = 0f;
+            canPickup = false;
+
+            transform.SetParent(null, true);
+            transform.SetPositionAndRotation(position, rotation);
+            gameObject.SetActive(true);
+
+            if (rb != null)
+            {
+                rb.position = position;
+                rb.rotation = rotation;
+            }
+            Physics.SyncTransforms();
+
+            ThrowWithPhysics(force, forceMode);
+        }
+
+        private bool IsClosestPickupForPlayer()
+        {
+            if (weaponEquip == null) return true;
+            Vector3 playerPos = weaponEquip.transform.position;
+            float myDistSqr = (transform.position - playerPos).sqrMagnitude;
+
+            for (int i = 0; i < s_activePickups.Count; i++)
+            {
+                WeaponPickup other = s_activePickups[i];
+                if (other == null || other == this || other.weaponEquip != weaponEquip || !other.canPickup) continue;
+                if ((other.transform.position - playerPos).sqrMagnitude < myDistSqr) return false;
+            }
+            return true;
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (isSettling) return;
+            if (TryResolveLiveWeaponEquip(other, out var targetEquip))
+            {
+                canPickup = true; weaponEquip = targetEquip;
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            var targetEquip = other.GetComponentInParent<PlayerWeaponEquipment>();
+            if (targetEquip != null && targetEquip == weaponEquip) canPickup = false;
+        }
+
+        #endregion
+    }
+}

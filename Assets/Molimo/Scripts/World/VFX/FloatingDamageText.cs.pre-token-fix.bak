@@ -1,0 +1,191 @@
+// =====================================================================================
+// FloatingDamageText.cs
+// -------------------------------------------------------------------------------------
+// GUIA of configuration (not is required create Prefab, tudo is gerado via code):
+//
+// 1) this script not precisa be adicionado manualmente the none object in the scene.
+//    it is anexado dinamicamente by own method static Create().
+//
+// 2) single PASSO required in the EDITOR:
+//    Va in "Edit > Project Settings > TextMesh Pro > Settings" (or crie the asset
+//    TMP_Settings in Assets/TextMesh Pro/Resources caso still not exista, via
+//    "Window > TextMeshPro > Import TMP Essential Resources") and confirme that the campo
+//    "Default Font Asset" is filled (ex: LiberationSans SDF).
+//    without this, TMP_Settings.defaultFontAsset is null and the text remains invisible.
+//
+// 3) the use in any script (Enemy, BreakableBox, etc.):
+//        FloatingDamageText.Create(impactPoint, -damageAmount);
+//    values negativos aparecem the damage (ex: "-25"), values positivos aparecem
+//    with sinal of "+" (ex: "+15", useful is healing).
+//
+// 4) parameters opcionais (fontSize, moveSpeed, duration) can be ajustados by
+//    call, without precisar mexer neste arquivo:
+//        FloatingDamageText.Create(impactPoint, -damageAmount, fontSize: 8f, moveSpeed: 3f, duration: 1.5f);
+// =====================================================================================
+
+using UnityEngine;
+using TMPro;
+
+namespace MolimoByLulucaGameDev
+{
+    /// <summary>
+    /// Provides the floating damage text component.
+    /// </summary>
+    public class FloatingDamageText : MonoBehaviour
+    {
+        [Header("settings of movement/duration")]
+        [Tooltip("speed of subida of the text in the axis Y")]
+        [SerializeField] private float moveSpeed = 2f;
+
+        [Tooltip("duration total (seconds) until the text be destroyed")]
+        [SerializeField] private float duration = 1.2f;
+
+        private const float SpawnHeightOffset = 0.5f;
+        private const int TextSortingOrder = 500;
+
+        private TextMeshPro _textMesh;
+        private Camera _mainCamera;
+        private Color _startColor;
+        private float _elapsedTime = 0f;
+
+        #region Static Factory
+        /// <summary>
+        /// creates the text of damage flutuante na position indicada, the pouco acima of the point of impact.
+        /// </summary>
+        /// <param name="worldPosition">point of impact in the world (ex: ClosestPoint of the hit).</param>
+        /// <param name="damageValue">value exibido. Negativo = damage, positivo = healing.</param>
+        /// <param name="fontSize">size of the source of the TextMeshPro.</param>
+        /// <param name="moveSpeed">speed of subida of the text (units/second).</param>
+        /// <param name="duration">time total of health of the text, in seconds.</param>
+        /// <summary>
+        /// Cria um texto de dano flutuante na posição indicada, um pouco acima do ponto de impacto.
+        /// </summary>
+        public static FloatingDamageText Create(Vector3 worldPosition, float damageValue, float fontSize = 6f, float moveSpeed = 2f, float duration = 1.2f)
+        {
+            GameObject textObject = new GameObject("FloatingDamageText");
+
+            // Parenta in the container global, if existir in the scene
+            if (VFXGlobalContainer.Instance != null)
+            {
+                textObject.transform.SetParent(VFXGlobalContainer.Instance, true);
+            }
+
+            textObject.transform.position = worldPosition + (Vector3.up * SpawnHeightOffset);
+
+            FloatingDamageText instance = textObject.AddComponent<FloatingDamageText>();
+            instance.Initialize(damageValue, fontSize, moveSpeed, duration);
+
+            return instance;
+        }        
+        #endregion
+
+        #region Initialization
+        private void Initialize(float damageValue, float fontSize, float moveSpeedParam, float durationParam)
+        {
+            moveSpeed = moveSpeedParam;
+            duration = durationParam;
+            _mainCamera = Camera.main;
+
+            _textMesh = gameObject.AddComponent<TextMeshPro>();
+            ConfigureTextAppearance(damageValue, fontSize);
+        }
+
+        private void ConfigureTextAppearance(float damageValue, float fontSize)
+        {
+            // ensures the source default of the TMP is prevent the error of source ausente/text invisible
+            if (_textMesh.font == null)
+            {
+                _textMesh.font = TMP_Settings.defaultFontAsset;
+            }
+
+            _textMesh.text = FormatDamageText(damageValue);
+            _textMesh.fontSize = fontSize;
+            _textMesh.color = Color.red;
+            _textMesh.fontStyle = FontStyles.Bold;
+            _textMesh.alignment = TextAlignmentOptions.Center;
+
+            MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+            if (meshRenderer != null)
+            {
+                meshRenderer.sortingOrder = TextSortingOrder;
+            }
+
+            _startColor = _textMesh.color;
+        }
+
+        private string FormatDamageText(float damageValue)
+        {
+            int roundedValue = Mathf.RoundToInt(damageValue);
+
+            if (roundedValue > 0) return $"+{roundedValue}";
+            return roundedValue.ToString();
+        }
+        #endregion
+
+        #region Update Loop
+        private void Update()
+        {
+            _elapsedTime += Time.deltaTime;
+
+            MoveUpward();
+            FaceCamera();
+            FadeOut();
+
+            if (_elapsedTime >= duration)
+            {
+                Destroy(gameObject);
+            }
+        }
+
+        private void MoveUpward()
+        {
+            transform.position += Vector3.up * moveSpeed * Time.deltaTime;
+        }
+
+        private void FaceCamera()
+        {
+            if (_mainCamera == null)
+            {
+                _mainCamera = Camera.main;
+                if (_mainCamera == null) return;
+            }
+
+            transform.rotation = Quaternion.LookRotation(transform.position - _mainCamera.transform.position);
+        }
+
+        private void FadeOut()
+        {
+            if (_textMesh == null) return;
+
+            float normalizedTime = Mathf.Clamp01(_elapsedTime / duration);
+            float alpha = Mathf.Lerp(1f, 0f, normalizedTime);
+
+            Color currentColor = _startColor;
+            currentColor.the = alpha;
+            _textMesh.color = currentColor;
+        }
+        #endregion
+    }
+}
+
+// =====================================================================================
+// example of application (already implementado in the BreakableBox.cs of the projeto):
+//
+//     public void TakeDamage(float damageAmount, Vector3 impactPoint)
+//     {
+//         if (_isBroken) return;
+//
+//         _currentHealth -= damageAmount;
+//
+//         // creates the text of damage flutuante in the point of impact
+//         FloatingDamageText.Create(impactPoint, -damageAmount);
+//
+//         if (_currentHealth <= 0)
+//         {
+//             BreakBox(impactPoint);
+//         }
+//     }
+//
+// the same default serve is the enemy: basta chamar FloatingDamageText.Create(impactPoint, -damageAmount)
+// inside the method that receives damage (ex: EnemyController.TakeDamage), without precisar of none Prefab.
+// =====================================================================================

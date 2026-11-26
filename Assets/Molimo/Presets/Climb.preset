@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Climb
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 7e5b44aa8ecdf3144b451c5ac3f4901a, type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: Assembly-CSharp::MolimoByLulucaGameDev.Climb
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: brain
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: animator
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: floorSensor
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: wallSensor
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: floorLayer.m_Bits
+    value: 8448
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: climbableLayer.m_Bits
+    value: 4096
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: interactAction
+    value: 
+    objectReference: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - target: {fileID: 0}
+    propertyPath: moveAction
+    value: 
+    objectReference: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - target: {fileID: 0}
+    propertyPath: climbSpeed
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: transitionDuration
+    value: 0.35
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: upOffset
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: forwardOffset
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: isTouchingFloor
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: isTouchingClimbable
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: isClimbing
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: isTransitioningToFloor
+    value: 0
+    objectReference: {fileID: 0}
+  m_ExcludedProperties: []
+  m_CoupledType:
+    m_NativeTypeID: 0
+    m_ManagedTypePPtr: {fileID: 0}
+    m_ManagedTypeFallback: 
+  m_CoupledProperties: []

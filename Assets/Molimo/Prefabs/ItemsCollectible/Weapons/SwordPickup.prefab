@@ -1,0 +1,154 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5404800215380694389
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_Name
+      value: SwordPickup
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      propertyPath: m_TagString
+      value: Weapon
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 165826123833315625}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6308665260469499009}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6523474675177148934}
+  m_SourcePrefab: {fileID: 100100000, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+--- !u!1 &5170375334556968996 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 07a78238cc6718445944e60dc5ba0dc8, type: 3}
+  m_PrefabInstance: {fileID: 5404800215380694389}
+  m_PrefabAsset: {fileID: 0}
+--- !u!136 &165826123833315625
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5170375334556968996}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.10997927
+  m_Height: 1.1422144
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.42481357, z: 0.001378323}
+--- !u!54 &6308665260469499009
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5170375334556968996}
+  serializedVersion: 5
+  m_Mass: 3
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
+--- !u!114 &6523474675177148934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5170375334556968996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9464d0cd635477c469751e7503395c14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MolimoByLulucaGameDev.WeaponPickup
+  pickupType: 0
+  weaponEquip: {fileID: 0}
+  respawnPoint: {fileID: 0}
+  respawnPointTag: SwordRespawn
+  respawnPointName: SwordRespawnpoint
+  spawnPositionOffset: {x: 0, y: 0, z: 0}
+  spawnRotationOffset: {x: 90, y: 0, z: 0}
+  randomizeYRotation: 1
+  immunityDuration: 2
+  physicsEnableDelay: 0.5
+  voidFallbackY: -20

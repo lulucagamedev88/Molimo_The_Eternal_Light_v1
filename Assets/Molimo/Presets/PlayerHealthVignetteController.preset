@@ -1,0 +1,468 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PlayerHealthVignetteController
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: cfe5848874d6e574aa9ed2e0a8775bb3, type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: Assembly-CSharp::MolimoByLulucaGameDev.PlayerHealthVignetteController
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: health
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.image
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.startHealth
+    value: 0.4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.useFadeIn
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.size
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[0].time
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[0].value
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[0].inSlope
+    value: 3.2543254
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[0].outSlope
+    value: 3.2543254
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[0].tangentMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[0].weightedMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[0].inWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[0].outWeight
+    value: 0.061001156
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[1].time
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[1].value
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[1].inSlope
+    value: -0.6066847
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[1].outSlope
+    value: -0.6066847
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[1].tangentMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[1].weightedMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[1].inWeight
+    value: 0.52837574
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_Curve.Array.data[1].outWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_PreInfinity
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_PostInfinity
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeSizeByHealth.m_RotationOrder
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holeFeather
+    value: 0.25
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.pulseHoleWithBeat
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.holePulseAmount
+    value: 0.05
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.minPulseAlpha
+    value: 0.75
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: veinsLayer.runtimeMaterial
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.image
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.startHealth
+    value: 0.3
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.useFadeIn
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.size
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[0].time
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[0].value
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[0].inSlope
+    value: 4.9718785
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[0].outSlope
+    value: 4.9718785
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[0].tangentMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[0].weightedMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[0].inWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[0].outWeight
+    value: 0.039138943
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[1].time
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[1].value
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[1].inSlope
+    value: -0.06594376
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[1].outSlope
+    value: -0.06594376
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[1].tangentMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[1].weightedMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[1].inWeight
+    value: 0.10567516
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_Curve.Array.data[1].outWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_PreInfinity
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_PostInfinity
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeSizeByHealth.m_RotationOrder
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holeFeather
+    value: 0.35
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.pulseHoleWithBeat
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.holePulseAmount
+    value: 0.05
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.minPulseAlpha
+    value: 0.85
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: plainLayer.runtimeMaterial
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: hitVignetteBoost
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: hitVignetteFadeSpeed
+    value: 1.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.size
+    value: 5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[0].time
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[0].value
+    value: 30
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[0].inSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[0].outSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[0].tangentMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[0].weightedMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[0].inWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[0].outWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[1].time
+    value: 0.05
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[1].value
+    value: 180
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[1].inSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[1].outSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[1].tangentMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[1].weightedMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[1].inWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[1].outWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[2].time
+    value: 0.2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[2].value
+    value: 140
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[2].inSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[2].outSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[2].tangentMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[2].weightedMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[2].inWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[2].outWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[3].time
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[3].value
+    value: 90
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[3].inSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[3].outSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[3].tangentMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[3].weightedMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[3].inWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[3].outWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[4].time
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[4].value
+    value: 65
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[4].inSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[4].outSlope
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[4].tangentMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[4].weightedMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[4].inWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_Curve.Array.data[4].outWeight
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_PreInfinity
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_PostInfinity
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpmByHealth.m_RotationOrder
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: dubIntensity
+    value: 0.65
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: enablePulseSound
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: pulseSound
+    value: 
+    objectReference: {fileID: 11400000, guid: be0a21cbefe638644926b390f4e15dbb, type: 2}
+  - target: {fileID: 0}
+    propertyPath: dubSound
+    value: 
+    objectReference: {fileID: 11400000, guid: 902aefe2bc8a9e24e9b0a5037b82e73d, type: 2}
+  - target: {fileID: 0}
+    propertyPath: pulseSoundStartHealth
+    value: 0.4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: pulseAudioSource
+    value: 
+    objectReference: {fileID: 0}
+  m_ExcludedProperties: []
+  m_CoupledType:
+    m_NativeTypeID: 0
+    m_ManagedTypePPtr: {fileID: 0}
+    m_ManagedTypeFallback: 
+  m_CoupledProperties: []

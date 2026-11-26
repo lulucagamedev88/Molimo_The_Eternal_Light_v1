@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: AmbientManager
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 7b8fccc82e48feb409b7bf2d9b8a6983, type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: Assembly-CSharp::MolimoByLulucaGameDev.AmbientManager
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: weatherController
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: coldAmbient
+    value: 
+    objectReference: {fileID: 11400000, guid: 63b7e273f678f8140a0d45f89558872c, type: 2}
+  - target: {fileID: 0}
+    propertyPath: hotDryAmbient
+    value: 
+    objectReference: {fileID: 11400000, guid: 1b747cc05b9b68d44acb5aa370998ac2, type: 2}
+  - target: {fileID: 0}
+    propertyPath: rainLightAmbient
+    value: 
+    objectReference: {fileID: 11400000, guid: 59262a4c2b328a84a8d4bc8fa7fa7eaf, type: 2}
+  - target: {fileID: 0}
+    propertyPath: rainMediumAmbient
+    value: 
+    objectReference: {fileID: 11400000, guid: 59262a4c2b328a84a8d4bc8fa7fa7eaf, type: 2}
+  - target: {fileID: 0}
+    propertyPath: rainHeavyAmbient
+    value: 
+    objectReference: {fileID: 11400000, guid: 2648b6ed0ed4cdf4c9c0bdcf2b2f506d, type: 2}
+  - target: {fileID: 0}
+    propertyPath: thunderSounds.Array.size
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: 'thunderSounds.Array.data[0]'
+    value: 
+    objectReference: {fileID: 11400000, guid: 4ae4ecac8427b1d42a839659666b7172, type: 2}
+  - target: {fileID: 0}
+    propertyPath: 'thunderSounds.Array.data[1]'
+    value: 
+    objectReference: {fileID: 11400000, guid: cad028077972d6d44ba582961287822a, type: 2}
+  - target: {fileID: 0}
+    propertyPath: fadeDuration
+    value: 0.8
+    objectReference: {fileID: 0}
+  m_ExcludedProperties: []
+  m_CoupledType:
+    m_NativeTypeID: 0
+    m_ManagedTypePPtr: {fileID: 0}
+    m_ManagedTypeFallback: 
+  m_CoupledProperties: []

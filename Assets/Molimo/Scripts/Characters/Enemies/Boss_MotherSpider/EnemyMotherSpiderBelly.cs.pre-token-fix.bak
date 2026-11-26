@@ -1,0 +1,233 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace MolimoByLulucaGameDev
+{
+    /// <summary>
+    /// Barriga (ponto fraco) da Aranha Mãe.
+    ///
+    /// COMO MONTAR:
+    ///   1. Cria um GameObject FILHO da aranha (ex.: "Belly") — NUNCA no mesmo
+    ///      GameObject do BoxCollider do corpo.
+    ///   2. Adiciona um Collider (Box ou Sphere) e marca Is Trigger.
+    ///   3. Adiciona este script ao mesmo objeto.
+    ///   4. NÃO adiciones Rigidbody ao filho — o Rigidbody é o da aranha.
+    ///   5. Tag "Enemy" no GameObject da barriga (importante!).
+    ///
+    /// COMO FUNCIONA:
+    ///   - Implementa IDamageable, para que o MolimoCombat a reconheça como alvo
+    ///     válido quando atinge o trigger durante o Rest da aranha.
+    ///   - Guarda os colliders válidos (Player e/ou Molimo) dentro do trigger.
+    ///   - Quando o golpe chega ao boss (TakeDamage), o boss pergunta a este
+    ///     script "há atacante válido dentro?". Se sim, dano passa como ponto fraco.
+    ///   - TakeDamage aqui reencaminha para o boss com o damageMultiplier.
+    /// </summary>
+    public class EnemyMotherSpiderBelly : MonoBehaviour, IDamageable
+    {
+        [Header("references")]
+        [Tooltip("spider mother. if empty, searches the parents.")]
+        [SerializeField] private EnemyMotherSpider boss;
+
+        [Tooltip("Collider trigger of the belly. if empty, uses the deste GameObject.")]
+        [SerializeField] private Collider bellyCollider;
+
+        [Header("damage")]
+        [Tooltip("Multiplicador of the damage in the belly (1 = damage normal, 1.5 = +50%).")]
+        [SerializeField] private float damageMultiplier = 1f;
+
+        [Header("who conta the 'inside'")]
+        [Tooltip("if true, the Molimo (MolimoAI) also enables the point fraco, not only the Player.")]
+        [SerializeField] private bool acceptMolimo = true;
+
+        [Tooltip("optional: tag alternative is identificar the Molimo. " +
+                 "Deixa empty if confiares only in the component MolimoAI.")]
+        [SerializeField] private string molimoTag = "";
+
+        [Tooltip("optional: restringe the detection the estas layers. 0 = accepts tudo.")]
+        [SerializeField] private LayerMask targetLayers = ~0;
+
+        [Header("Gizmo")]
+        [SerializeField] private Color gizmoColor = new Color(0.9f, 0.2f, 0.8f, 0.6f);
+
+        [Header("Debug")]
+        [SerializeField] private bool debugLogs = false;
+
+        private readonly HashSet<Collider> _inside = new HashSet<Collider>();
+        private readonly List<Collider> _toRemove = new List<Collider>();
+        private bool _exposed = true;
+
+        public float DamageMultiplier => damageMultiplier;
+
+        // ============================================================
+        // IDamageable — delegation is the boss
+        // ============================================================
+        public float CurrentHealth => boss != null ? boss.CurrentHealth : 0f;
+        public float MaxHealth => boss != null ? boss.MaxHealth : 0f;
+        public bool IsAlive => boss != null && boss.IsAlive;
+
+        /// <summary>
+        /// Dano direto na barriga. Se a barriga estiver exposta e o atacante
+        /// estiver dentro, o boss trata como ponto fraco e aplica o multiplicador.
+        /// Caso contrário, o dano é simplesmente descartado (a barriga só é
+        /// vulnerável durante o Rest).
+        /// </summary>
+        public void TakeDamage(float amount, float knockbackDistance = -1f)
+        {
+            if (boss == null) return;
+
+            if (!_exposed)
+            {
+                if (debugLogs)
+                    Debug.Log("[EnemyMotherBelly] damage ignored: belly protegida.");
+                return;
+            }
+
+            boss.ApplyDamageFromWeakPoint(amount, knockbackDistance, damageMultiplier);
+
+            if (debugLogs)
+                Debug.Log($"[EnemyMotherBelly] damage fraco applied: {amount} x{damageMultiplier}.");
+        }
+
+        /// <summary>True if algum collider valid is inside the belly (compat.).</summary>
+        public bool IsPlayerInside
+        {
+            get
+            {
+                if (!_exposed) return false;
+
+                _toRemove.Clear();
+                foreach (Collider c in _inside)
+                {
+                    if (c == null || !c.enabled || !c.gameObject.activeInHierarchy)
+                        _toRemove.Add(c);
+                }
+                for (int i = 0; i < _toRemove.Count; i++)
+                    _inside.removes(_toRemove[i]);
+
+                return _inside.Count > 0;
+            }
+        }
+
+        /// <summary>Alias semântico (Player + Molimo).</summary>
+        public bool IsTargetInside => IsPlayerInside;
+
+        private void Awake()
+        {
+            if (boss == null) boss = GetComponentInParent<EnemyMotherSpider>();
+            if (bellyCollider == null) bellyCollider = GetComponent<Collider>();
+
+            if (bellyCollider == null)
+            {
+                Debug.LogError($"[EnemyMotherBelly] '{name}' does not have Collider.");
+                return;
+            }
+
+            if (!bellyCollider.isTrigger)
+            {
+                Debug.LogWarning($"[EnemyMotherBelly] the collider of '{name}' not era Trigger. the marcar Is Trigger automatically.");
+                bellyCollider.isTrigger = true;
+            }
+
+            if (GetComponent<Rigidbody>() != null)
+            {
+                Debug.LogWarning($"[EnemyMotherBelly] '{name}' has Rigidbody own. removes-the: " +
+                                 $"the belly must use the Rigidbody of the spider.");
+            }
+
+            if (boss == null)
+            {
+                Debug.LogWarning($"[EnemyMotherBelly] none EnemyMotherSpider found nos parents of '{name}'.");
+            }
+        }
+
+        private void OnDisable()
+        {
+            _inside.Clear();
+        }
+
+        /// <summary>
+        /// Sets exposed.
+        /// </summary>
+        public void SetExposed(bool exposed)
+        {
+            _exposed = exposed;
+
+            if (bellyCollider != null)
+                bellyCollider.enabled = exposed;
+
+            if (!exposed)
+                _inside.Clear();
+
+            if (debugLogs)
+                Debug.Log($"[EnemyMotherBelly] belly {(exposed ? "EXPOSTA" : "protegida")}.");
+        }
+
+        // ============================================================
+        // Trigger
+        // ============================================================
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!IsValidTarget(other)) return;
+
+            _inside.Add(other);
+
+            if (debugLogs)
+                Debug.Log($"[EnemyMotherBelly] Entrou: {other.name}");
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (_inside.removes(other) && debugLogs)
+                Debug.Log($"[EnemyMotherBelly] Saiu: {other.name}");
+        }
+
+        private bool IsValidTarget(Collider other)
+        {
+            if (other == null) return false;
+            if (!other.enabled || !other.gameObject.activeInHierarchy) return false;
+
+            if (targetLayers.value != 0 &&
+                (targetLayers.value & (1 << other.gameObject.layer)) == 0)
+                return false;
+
+            // Player
+            if (other.GetComponentInParent<PlayerBrain>() != null) return true;
+
+            // Molimo (component or tag optional)
+            if (acceptMolimo)
+            {
+                if (other.GetComponentInParent<MolimoAI>() != null) return true;
+
+                if (!string.IsNullOrEmpty(molimoTag))
+                {
+                    Transform t = other.transform;
+                    if (t.CompareTag(molimoTag)) return true;
+                    if (t.root != t && t.root.CompareTag(molimoTag)) return true;
+
+                    Transform walker = t.parent;
+                    while (walker != null)
+                    {
+                        if (walker.CompareTag(molimoTag)) return true;
+                        walker = walker.parent;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Collider c = bellyCollider != null ? bellyCollider : GetComponent<Collider>();
+            if (c == null) return;
+
+            Gizmos.color = gizmoColor;
+            Gizmos.matrix = c.transform.localToWorldMatrix;
+
+            if (c is BoxCollider box)
+                Gizmos.DrawWireCube(box.center, box.size);
+            else if (c is SphereCollider sphere)
+                Gizmos.DrawWireSphere(sphere.center, sphere.radius);
+        }
+    }
+}
