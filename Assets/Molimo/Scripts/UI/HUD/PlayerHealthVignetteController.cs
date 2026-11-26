@@ -79,6 +79,12 @@ namespace MolimoByLulucaGameDev
         private bool dubFiredThisCycle;
         private float currentHitBoost = 0f;
 
+        private float heartbeatOriginalVolume = 1f;
+        private bool heartbeatMuted;
+        private bool heartbeatFading;
+        private float heartbeatFadeTimer;
+        private float heartbeatFadeDuration = 1f;
+
         private void Awake()
         {
             if (!Application.isPlaying) return;
@@ -108,7 +114,9 @@ namespace MolimoByLulucaGameDev
 
         private void Update()
         {
-            if (!Application.isPlaying || health == null) return;
+            if (!Application.isPlaying) return;
+            if (heartbeatFading) TickHeartbeatFade();
+            if (health == null) return;
 
             healthRatio = health.MaxHealth > 0f ? Mathf.Clamp01(health.CurrentHealth / health.MaxHealth) : 0f;
 
@@ -184,6 +192,12 @@ namespace MolimoByLulucaGameDev
                 return;
             }
 
+            if (heartbeatMuted)
+            {
+                previousCycle = currentCycle;
+                return;
+            }
+
             bool wrapped = currentCycle < previousCycle;
             if (wrapped) { lubFiredThisCycle = false; dubFiredThisCycle = false; }
 
@@ -215,6 +229,39 @@ namespace MolimoByLulucaGameDev
             pulseAudioSource.playOnAwake = false;
             pulseAudioSource.loop = false;
             pulseAudioSource.spatialBlend = 0f;
+            heartbeatOriginalVolume = pulseAudioSource.volume;
+        }
+
+        // ---------------- Heartbeat mute (death / game over flow) ----------------
+
+        /// <summary>Blocks new heartbeat sounds and fades the source volume to 0 (unscaled time). Used when the countdown reaches 00.</summary>
+        public void FadeOutAndMuteHeartbeat(float fadeDuration = 1f)
+        {
+            if (pulseAudioSource == null) return;
+
+            heartbeatMuted = true;
+            heartbeatFading = true;
+            heartbeatFadeDuration = Mathf.Max(0.01f, fadeDuration);
+            heartbeatFadeTimer = 0f;
+        }
+
+        /// <summary>Restores the heartbeat to its normal state (used on revive/reset).</summary>
+        public void RestoreHeartbeat()
+        {
+            heartbeatMuted = false;
+            heartbeatFading = false;
+            if (pulseAudioSource != null) pulseAudioSource.volume = heartbeatOriginalVolume;
+        }
+
+        private void TickHeartbeatFade()
+        {
+            heartbeatFadeTimer += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(heartbeatFadeTimer / heartbeatFadeDuration);
+
+            if (pulseAudioSource != null)
+                pulseAudioSource.volume = Mathf.Lerp(heartbeatOriginalVolume, 0f, t);
+
+            if (t >= 1f) heartbeatFading = false;
         }
 
         private float ComputeVisibility(float ratio, VignetteLayer layer)

@@ -37,6 +37,30 @@ namespace MolimoByLulucaGameDev
         [Tooltip("Se ativo, mostra 'GAME OVER' em vez de 'PERDEU O JOGO!'.")]
         [SerializeField] private bool useGameOverText = false;
 
+        [Header("BGM Tape-Stop (on death)")]
+        [Tooltip("AudioSource da música de fundo ativa na cena. Na morte sofre tape-stop (pitch down) + fade de volume.")]
+        [SerializeField] private AudioSource backgroundMusic;
+        [Tooltip("Pitch final do efeito tape-stop.")]
+        [SerializeField, Range(0.05f, 1f)] private float bgmTargetPitch = 0.25f;
+        [Tooltip("Duração da descida de pitch.")]
+        [SerializeField, Min(0.01f)] private float bgmPitchDropDuration = 2.5f;
+        [Tooltip("Duração do fade de volume da BGM até 0.")]
+        [SerializeField, Min(0.01f)] private float bgmVolumeFadeDuration = 2.5f;
+        [Tooltip("Duração da restauração de pitch/volume no revive.")]
+        [SerializeField, Min(0.01f)] private float bgmRestoreDuration = 0.5f;
+
+        [Header("Heartbeat (via Vignette)")]
+        [Tooltip("Controlador da vinheta que toca o batimento; silenciado no game over.")]
+        [SerializeField] private PlayerHealthVignetteController vignetteController;
+        [Tooltip("Duração do fade out do batimento ao chegar em 00.")]
+        [SerializeField, Min(0.01f)] private float heartbeatFadeOutDuration = 1f;
+
+        [Header("Ambient")]
+        [Tooltip("AudioSource do som ambiente da cena (fade out no game over, restaurado no revive).")]
+        [SerializeField] private AudioSource ambientAudio;
+        [SerializeField, Min(0.01f)] private float ambientFadeOutDuration = 2f;
+        [SerializeField, Min(0.01f)] private float ambientRestoreDuration = 0.5f;
+
         [Header("Revive Input (optional)")]
         [Tooltip("Ativa uma tecla do New Input System para cancelar a contagem/reviver.")]
         [SerializeField] private bool enableReviveKey = false;
@@ -58,6 +82,21 @@ namespace MolimoByLulucaGameDev
         private float defeatFadeProgress;
         private bool defeatFullyShown;
 
+        private bool bgmTapeStopActive;
+        private bool bgmRestoring;
+        private bool bgmStopped;
+        private bool bgmWasPlaying;
+        private float bgmOriginalPitch = 1f;
+        private float bgmOriginalVolume = 1f;
+        private float bgmTimer;
+
+        private bool ambientFading;
+        private bool ambientRestoring;
+        private bool ambientMuted;
+        private bool ambientWasPlaying;
+        private float ambientOriginalVolume = 1f;
+        private float ambientTimer;
+
         private void OnEnable()
         {
             ResetVisualState();
@@ -78,10 +117,13 @@ namespace MolimoByLulucaGameDev
 
         private void Update()
         {
-            // Sem custo por frame enquanto ociosa.
-            if (state == CountdownState.Idle) return;
+            // Sem custo por frame enquanto ociosa e sem transições de áudio pendentes.
+            if (state == CountdownState.Idle &&
+                !bgmTapeStopActive && !bgmRestoring &&
+                !ambientFading && !ambientRestoring) return;
 
-            HandleReviveKey();
+            if (state != CountdownState.Idle)
+                HandleReviveKey();
 
             if (state == CountdownState.Counting)
             {
@@ -92,6 +134,8 @@ namespace MolimoByLulucaGameDev
             {
                 TickDefeatFade();
             }
+
+            TickAudio();
         }
 
         // ---------------- Public API ----------------
@@ -111,11 +155,13 @@ namespace MolimoByLulucaGameDev
             state = CountdownState.Counting;
             countdownText.enabled = true;
             ShowSecond(countdownStartValue);
+
+            BeginBgmTapeStop();
         }
 
         /// <summary>
-        /// Cancela a contagem (ou fecha a tela de derrota), esconde o texto e
-        /// reseta todo o estado sem tocar na vinheta/áudio existentes.
+        /// Cancela a contagem (ou fecha a tela de derrota), esconde o texto, reseta todo
+        /// o estado visual e restaura BGM/ambiente/batimento aos valores originais.
         /// </summary>
         public void CancelCountdownAndRevive()
         {
@@ -123,6 +169,8 @@ namespace MolimoByLulucaGameDev
 
             ResetVisualState();
             state = CountdownState.Idle;
+
+            BeginAudioRestore();
             onRevived?.Invoke();
         }
 
@@ -180,6 +228,12 @@ namespace MolimoByLulucaGameDev
         private void EnterDefeat()
         {
             state = CountdownState.Defeat;
+
+            // Silencia o batimento e o ambiente para a tela de derrota em silêncio total.
+            if (vignetteController != null)
+                vignetteController.FadeOutAndMuteHeartbeat(heartbeatFadeOutDuration);
+
+            BeginAmbientFadeOut();
 
             // Esconde e reseta o texto da contagem.
             if (countdownText != null)
@@ -253,6 +307,139 @@ namespace MolimoByLulucaGameDev
             var cache = new string[100];
             for (int i = 0; i < 100; i++) cache[i] = i.ToString("00");
             return cache;
+        }
+
+        // ---------------- Audio flow (BGM / heartbeat / ambient) ----------------
+
+        private void TickAudio()
+        {
+            if (bgmTapeStopActive) TickBgmTapeStop();
+            else if (bgmRestoring) TickBgmRestore();
+
+            if (ambientFading) TickAmbientFadeOut();
+            else if (ambientRestoring) TickAmbientRestore();
+        }
+
+        /// <summary>Tape-stop: pitch desce até bgmTargetPitch e volume faz fade até 0 (unscaled), depois para limpo.</summary>
+        private void BeginBgmTapeStop()
+        {
+            if (backgroundMusic == null) return;
+
+            bgmOriginalPitch = backgroundMusic.pitch;
+            bgmOriginalVolume = backgroundMusic.volume;
+            bgmWasPlaying = backgroundMusic.isPlaying;
+            bgmTapeStopActive = true;
+            bgmStopped = false;
+            bgmRestoring = false;
+            bgmTimer = 0f;
+        }
+
+        private void TickBgmTapeStop()
+        {
+            bgmTimer += Time.unscaledDeltaTime;
+
+            float pitchT = Mathf.Clamp01(bgmTimer / bgmPitchDropDuration);
+            float volumeT = Mathf.Clamp01(bgmTimer / bgmVolumeFadeDuration);
+
+            backgroundMusic.pitch = Mathf.Lerp(bgmOriginalPitch, bgmTargetPitch, pitchT);
+            backgroundMusic.volume = Mathf.Lerp(bgmOriginalVolume, 0f, volumeT);
+
+            if (pitchT >= 1f && volumeT >= 1f)
+            {
+                // Corte limpo: para a fonte e devolve o pitch original (o volume fica em 0
+                // para a restauração no revive fazer fade in a partir do silêncio).
+                bgmTapeStopActive = false;
+                bgmStopped = true;
+                backgroundMusic.Stop();
+                backgroundMusic.pitch = bgmOriginalPitch;
+                backgroundMusic.volume = 0f;
+            }
+        }
+
+        private void TickBgmRestore()
+        {
+            bgmTimer += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(bgmTimer / bgmRestoreDuration);
+
+            backgroundMusic.pitch = Mathf.Lerp(backgroundMusic.pitch, bgmOriginalPitch, t);
+            backgroundMusic.volume = Mathf.Lerp(backgroundMusic.volume, bgmOriginalVolume, t);
+
+            if (t >= 1f)
+            {
+                bgmRestoring = false;
+                bgmStopped = false;
+                backgroundMusic.pitch = bgmOriginalPitch;
+                backgroundMusic.volume = bgmOriginalVolume;
+
+                if (bgmWasPlaying && !backgroundMusic.isPlaying)
+                    backgroundMusic.Play();
+            }
+        }
+
+        private void BeginAmbientFadeOut()
+        {
+            if (ambientAudio == null) return;
+
+            ambientOriginalVolume = ambientAudio.volume;
+            ambientWasPlaying = ambientAudio.isPlaying;
+            ambientFading = true;
+            ambientRestoring = false;
+            ambientMuted = false;
+            ambientTimer = 0f;
+        }
+
+        private void TickAmbientFadeOut()
+        {
+            ambientTimer += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(ambientTimer / ambientFadeOutDuration);
+
+            ambientAudio.volume = Mathf.Lerp(ambientOriginalVolume, 0f, t);
+
+            if (t >= 1f)
+            {
+                ambientFading = false;
+                ambientMuted = true;
+                ambientAudio.Stop();
+            }
+        }
+
+        private void TickAmbientRestore()
+        {
+            ambientTimer += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(ambientTimer / ambientRestoreDuration);
+
+            ambientAudio.volume = Mathf.Lerp(ambientAudio.volume, ambientOriginalVolume, t);
+
+            if (t >= 1f)
+            {
+                ambientRestoring = false;
+                ambientMuted = false;
+                ambientAudio.volume = ambientOriginalVolume;
+
+                if (ambientWasPlaying && !ambientAudio.isPlaying)
+                    ambientAudio.Play();
+            }
+        }
+
+        /// <summary>Devolve BGM, ambiente e batimento aos valores originais (revive/reset).</summary>
+        private void BeginAudioRestore()
+        {
+            if (backgroundMusic != null && (bgmTapeStopActive || bgmStopped))
+            {
+                bgmTapeStopActive = false;
+                bgmRestoring = true;
+                bgmTimer = 0f;
+            }
+
+            if (ambientAudio != null && (ambientFading || ambientMuted))
+            {
+                ambientFading = false;
+                ambientRestoring = true;
+                ambientTimer = 0f;
+            }
+
+            if (vignetteController != null)
+                vignetteController.RestoreHeartbeat();
         }
     }
 }
