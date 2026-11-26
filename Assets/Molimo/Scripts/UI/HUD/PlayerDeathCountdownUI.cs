@@ -21,6 +21,8 @@ namespace MolimoByLulucaGameDev
         [SerializeField] private TextMeshProUGUI defeatText;
         [Tooltip("Opcional: inicia a contagem automaticamente quando esta vida chega a zero.")]
         [SerializeField] private PlayerHealth playerHealth;
+        [Tooltip("Opcional: cérebro do jogador; usado para o devolver ao estado vivo no revive.")]
+        [SerializeField] private PlayerBrain playerBrain;
 
         [Header("Countdown")]
         [Tooltip("Valor inicial da contagem (exibido como dois dígitos, ex.: 10).")]
@@ -84,10 +86,11 @@ namespace MolimoByLulucaGameDev
 
         private bool bgmTapeStopActive;
         private bool bgmRestoring;
-        private bool bgmStopped;
+        private bool bgmPaused;
         private bool bgmWasPlaying;
         private float bgmOriginalPitch = 1f;
         private float bgmOriginalVolume = 1f;
+        private float bgmSavedTime;
         private float bgmTimer;
 
         private bool ambientFading;
@@ -104,6 +107,12 @@ namespace MolimoByLulucaGameDev
 
             if (playerHealth != null)
                 playerHealth.OnDeath += HandlePlayerDied;
+
+            if (playerBrain == null && Application.isPlaying)
+                playerBrain = FindAnyObjectByType<PlayerBrain>();
+
+            if (playerBrain == null)
+                Debug.LogWarning("[PlayerDeathCountdownUI] PlayerBrain não encontrado: o revive não vai restaurar o estado do jogador.", this);
         }
 
         private void OnDisable()
@@ -111,6 +120,7 @@ namespace MolimoByLulucaGameDev
             if (playerHealth != null)
                 playerHealth.OnDeath -= HandlePlayerDied;
 
+            SnapAudioToDefaults();
             ResetVisualState();
             state = CountdownState.Idle;
         }
@@ -169,6 +179,15 @@ namespace MolimoByLulucaGameDev
 
             ResetVisualState();
             state = CountdownState.Idle;
+
+            // Devolve o jogador ao estado vivo (saúde, física, animação de levantar,
+            // controlo de movimento e sistemas) — o próprio Brain ignora se já estiver vivo.
+            if (playerBrain != null)
+                playerBrain.Revive();
+
+            // Limpa imediatamente a vinheta de morte em vez de esperar pelo fade de cura.
+            if (vignetteController != null)
+                vignetteController.ResetVignetteToAlive();
 
             BeginAudioRestore();
             onRevived?.Invoke();
@@ -328,8 +347,9 @@ namespace MolimoByLulucaGameDev
             bgmOriginalPitch = backgroundMusic.pitch;
             bgmOriginalVolume = backgroundMusic.volume;
             bgmWasPlaying = backgroundMusic.isPlaying;
+            bgmSavedTime = backgroundMusic.time;
             bgmTapeStopActive = true;
-            bgmStopped = false;
+            bgmPaused = false;
             bgmRestoring = false;
             bgmTimer = 0f;
         }
@@ -346,12 +366,11 @@ namespace MolimoByLulucaGameDev
 
             if (pitchT >= 1f && volumeT >= 1f)
             {
-                // Corte limpo: para a fonte e devolve o pitch original (o volume fica em 0
-                // para a restauração no revive fazer fade in a partir do silêncio).
+                // Pause em vez de Stop: preserva o clip/estado e evita perder a posição;
+                // o verdadeiro ponto de retoma é o timestamp guardado no início da morte.
                 bgmTapeStopActive = false;
-                bgmStopped = true;
-                backgroundMusic.Stop();
-                backgroundMusic.pitch = bgmOriginalPitch;
+                bgmPaused = true;
+                backgroundMusic.Pause();
                 backgroundMusic.volume = 0f;
             }
         }
@@ -361,18 +380,16 @@ namespace MolimoByLulucaGameDev
             bgmTimer += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(bgmTimer / bgmRestoreDuration);
 
+            // Pitch sobe suavemente até ao valor original e o volume faz fade in do silêncio.
             backgroundMusic.pitch = Mathf.Lerp(backgroundMusic.pitch, bgmOriginalPitch, t);
             backgroundMusic.volume = Mathf.Lerp(backgroundMusic.volume, bgmOriginalVolume, t);
 
             if (t >= 1f)
             {
                 bgmRestoring = false;
-                bgmStopped = false;
+                bgmPaused = false;
                 backgroundMusic.pitch = bgmOriginalPitch;
                 backgroundMusic.volume = bgmOriginalVolume;
-
-                if (bgmWasPlaying && !backgroundMusic.isPlaying)
-                    backgroundMusic.Play();
             }
         }
 
@@ -424,11 +441,22 @@ namespace MolimoByLulucaGameDev
         /// <summary>Devolve BGM, ambiente e batimento aos valores originais (revive/reset).</summary>
         private void BeginAudioRestore()
         {
-            if (backgroundMusic != null && (bgmTapeStopActive || bgmStopped))
+            if (backgroundMusic != null && (bgmTapeStopActive || bgmPaused))
             {
                 bgmTapeStopActive = false;
                 bgmRestoring = true;
                 bgmTimer = 0f;
+
+                // Retoma a partir do timestamp guardado quando a morte começou (a música
+                // abrandada que tocou durante a contagem é descartada).
+                if (bgmWasPlaying)
+                {
+                    backgroundMusic.time = bgmSavedTime;
+                    backgroundMusic.volume = 0f;
+
+                    if (!backgroundMusic.isPlaying)
+                        backgroundMusic.Play();
+                }
             }
 
             if (ambientAudio != null && (ambientFading || ambientMuted))
@@ -440,6 +468,48 @@ namespace MolimoByLulucaGameDev
 
             if (vignetteController != null)
                 vignetteController.RestoreHeartbeat();
+        }
+
+        /// <summary>
+        /// Restaura imediatamente BGM/ambiente/batimento sem fades (usado no OnDisable
+        /// para nunca deixar uma fonte com pitch/volume alterados entre runs).
+        /// </summary>
+        private void SnapAudioToDefaults()
+        {
+            bool bgmAffected = bgmTapeStopActive || bgmRestoring || bgmPaused;
+            bool ambientAffected = ambientFading || ambientRestoring || ambientMuted;
+
+            if (backgroundMusic != null && bgmAffected)
+            {
+                bgmTapeStopActive = false;
+                bgmRestoring = false;
+                bgmPaused = false;
+                backgroundMusic.pitch = bgmOriginalPitch;
+                backgroundMusic.volume = bgmOriginalVolume;
+
+                if (bgmWasPlaying && !backgroundMusic.isPlaying)
+                {
+                    backgroundMusic.time = bgmSavedTime;
+                    backgroundMusic.Play();
+                }
+            }
+
+            if (ambientAudio != null && ambientAffected)
+            {
+                ambientFading = false;
+                ambientRestoring = false;
+                ambientMuted = false;
+                ambientAudio.volume = ambientOriginalVolume;
+
+                if (ambientWasPlaying && !ambientAudio.isPlaying)
+                    ambientAudio.Play();
+            }
+
+            if (bgmAffected || ambientAffected)
+            {
+                if (vignetteController != null)
+                    vignetteController.RestoreHeartbeat();
+            }
         }
     }
 }
