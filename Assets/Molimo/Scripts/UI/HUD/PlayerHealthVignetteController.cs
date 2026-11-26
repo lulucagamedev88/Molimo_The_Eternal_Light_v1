@@ -253,6 +253,29 @@ namespace MolimoByLulucaGameDev
             if (pulseAudioSource != null) pulseAudioSource.volume = heartbeatOriginalVolume;
         }
 
+        /// <summary>
+        /// Snaps the vignette back to the player's current (alive) health immediately,
+        /// instead of waiting for the slow heal fade. Used on revive/reset.
+        /// </summary>
+        public void ResetVignetteToAlive()
+        {
+            RestoreHeartbeat();
+            currentHitBoost = 0f;
+
+            if (health != null && health.MaxHealth > 0f)
+            {
+                healthRatio = Mathf.Clamp01(health.CurrentHealth / health.MaxHealth);
+                smoothedHealthRatio = healthRatio;
+            }
+            else
+            {
+                healthRatio = 1f;
+                smoothedHealthRatio = 1f;
+            }
+
+            SetImagesEnabled(false);
+        }
+
         private void TickHeartbeatFade()
         {
             heartbeatFadeTimer += Time.unscaledDeltaTime;
