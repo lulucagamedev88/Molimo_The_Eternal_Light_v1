@@ -70,7 +70,7 @@ namespace MolimoByLulucaGameDev
         public UnityEvent onCountdownFinished;
         public UnityEvent onRevived;
 
-        private const string DefeatMessage = "PERDEU O JOGO!";
+        private const string DefeatMessage = "DESLIGADO!";
         private const string GameOverMessage = "GAME OVER";
 
         private static readonly string[] TwoDigitText = BuildTwoDigitCache();
