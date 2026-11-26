@@ -114,8 +114,12 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
 # --- Adicoes para poupar dados neste envio ---
-/FrankWarrior/
-/FrankWarrior.meta
+FrankWarrior/
+FrankWarrior.meta
+Assets/ThirdParty/VFX/
+Assets/ThirdParty/VFX.meta
+Assets/ThirdParty/Zacxophone/
+Assets/ThirdParty/Zacxophone.meta
 /.github/
 Thumbs.db
 Desktop.ini
