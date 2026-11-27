@@ -41157,7 +41157,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 266305335
+    m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -65494,7 +65494,7 @@ MonoBehaviour:
     m_Bits: 32768
   enableDashAttack: 1
   dashDetectionRadius: 5
-  dashAttackDamage: 15
+  dashAttackDamage: 5
   dashSpeed: 14
   dashStopDistance: 1.2
   dashMaxDuration: 0.5
