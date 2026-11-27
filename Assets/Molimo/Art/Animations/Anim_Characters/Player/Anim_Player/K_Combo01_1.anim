@@ -53619,28 +53619,21 @@ AnimationClip:
     intParameter: 3
     messageOptions: 0
   - time: 0.125
-    functionName: PlaySwingSound
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.125
-    functionName: PlaySoundCategory
-    data: Voice
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.125
     functionName: EnableWeaponHitBox
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.25
+  - time: 0.125
     functionName: PlaySwordTrailHorizontal
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.125
+    functionName: PlaySwingSound
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
@@ -53653,7 +53646,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.45833334
+  - time: 0.5
     functionName: StopSwordTrail
     data: 
     objectReferenceParameter: {fileID: 0}
