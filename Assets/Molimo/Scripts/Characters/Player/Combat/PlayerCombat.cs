@@ -37,6 +37,8 @@ namespace MolimoByLulucaGameDev
         [SerializeField] private string attack2TriggerName = "Attack2";
         [SerializeField] private string comboTriggerName = "Combo";
         [SerializeField] private string blockTriggerName = "IsBlock";
+        [Tooltip("Trigger do Animator que reproduz a animação dedicada do dash-attack com escudo.")]
+        [SerializeField] private string dashAttackTriggerName = "DashAttack";
 
         [Tooltip("Nome of the state of locomotion (Base Layer) used when the attack is cancelado.")]
         [SerializeField] private string locomotionStateName = "Locomotion";
@@ -209,6 +211,7 @@ namespace MolimoByLulucaGameDev
         private int attack2TriggerHash;
         private int comboTriggerHash;
         private int blockTriggerHash;
+        private int dashAttackTriggerHash;
         private int locomotionStateHash;
 
         private bool hasIsAttackingParameter = false;
@@ -216,6 +219,7 @@ namespace MolimoByLulucaGameDev
         private bool hasAttack2TriggerParameter = false;
         private bool hasComboTriggerParameter = false;
         private bool hasBlockTriggerParameter = false;
+        private bool hasDashAttackTriggerParameter = false;
 
         private static readonly Collider[] targetScanBuffer = new Collider[24];
 
@@ -280,6 +284,7 @@ namespace MolimoByLulucaGameDev
             attack2TriggerHash = Animator.StringToHash(attack2TriggerName);
             comboTriggerHash = Animator.StringToHash(comboTriggerName);
             blockTriggerHash = Animator.StringToHash(blockTriggerName);
+            dashAttackTriggerHash = Animator.StringToHash(dashAttackTriggerName);
             locomotionStateHash = Animator.StringToHash(locomotionStateName);
         }
 
@@ -314,12 +319,14 @@ namespace MolimoByLulucaGameDev
             hasAttack2TriggerParameter = HasAnimatorParameter(attack2TriggerHash);
             hasComboTriggerParameter = HasAnimatorParameter(comboTriggerHash);
             hasBlockTriggerParameter = HasAnimatorParameter(blockTriggerHash);
+            hasDashAttackTriggerParameter = HasAnimatorParameter(dashAttackTriggerHash);
 
             if (!hasIsAttackingParameter) Debug.LogWarning($"[Combat] parameter '{isAttackingParameterName}' does not exist in the Animator.", this);
             if (!hasAttack1TriggerParameter) Debug.LogWarning($"[Combat] parameter '{attack1TriggerName}' does not exist in the Animator.", this);
             if (!hasAttack2TriggerParameter) Debug.LogWarning($"[Combat] parameter '{attack2TriggerName}' does not exist in the Animator.", this);
             if (!hasComboTriggerParameter) Debug.LogWarning($"[Combat] parameter '{comboTriggerName}' does not exist in the Animator.", this);
             if (!hasBlockTriggerParameter) Debug.LogWarning($"[Combat] parameter '{blockTriggerName}' does not exist in the Animator.", this);
+            if (!hasDashAttackTriggerParameter) Debug.LogWarning($"[Combat] parameter '{dashAttackTriggerName}' does not exist in the Animator.", this);
         }
 
         private static StepForwardData[] DefaultStepForward()
@@ -854,6 +861,7 @@ namespace MolimoByLulucaGameDev
         private bool TryStartDashAttack()
         {
             if (!enableDashAttack || isDashAttackActive) return false;
+            if (isBlocking) return false;
 
             Collider target = GetDashTargetCollider();
             if (target == null) return false;
@@ -872,6 +880,15 @@ namespace MolimoByLulucaGameDev
             brain?.SetMovementInputLocked(true);
             dashOwnedMovementLock = true;
             movement?.SetDashAttacking(true);
+
+            // Animação dedicada do dash-attack: IsAttacking impede o Idle/Locomotion de
+            // sobrepor-se e o trigger reproduz o estado DashAttack durante todo o dash.
+            if (animator != null)
+            {
+                if (hasIsAttackingParameter) animator.SetBool(isAttackingParameterHash, true);
+                ResetAttackTriggers();
+                if (hasDashAttackTriggerParameter) animator.SetTrigger(dashAttackTriggerHash);
+            }
 
             if (ghostTrail != null)
             {
@@ -962,6 +979,18 @@ namespace MolimoByLulucaGameDev
             dashDirection = Vector3.forward;
 
             movement?.SetDashAttacking(false);
+
+            // Devolve o Animator a um estado limpo: se o dash não aterrOU no golpe,
+            // volta ao Locomotion; se aterrou, o EnterStage(Attack1) logo a seguir
+            // volta a ativar IsAttacking e dispara o trigger do golpe.
+            if (animator != null)
+            {
+                if (hasIsAttackingParameter) animator.SetBool(isAttackingParameterHash, false);
+                ResetAttackTriggers();
+
+                if (!landed && combatAllowed && animator.HasState(0, locomotionStateHash))
+                    animator.CrossFadeInFixedTime(locomotionStateHash, 0.1f);
+            }
 
             if (ownedLock && !landed && !isAttacking && !isBlocking)
                 brain?.SetMovementInputLocked(false);
@@ -1079,6 +1108,7 @@ namespace MolimoByLulucaGameDev
             if (hasAttack1TriggerParameter) animator.ResetTrigger(attack1TriggerHash);
             if (hasAttack2TriggerParameter) animator.ResetTrigger(attack2TriggerHash);
             if (hasComboTriggerParameter) animator.ResetTrigger(comboTriggerHash);
+            if (hasDashAttackTriggerParameter) animator.ResetTrigger(dashAttackTriggerHash);
         }
 
         private void UpdateAttackSafetyTimeout()
@@ -1159,6 +1189,7 @@ namespace MolimoByLulucaGameDev
         {
             if (isBlocking) return;
             if (!hasShield) return;
+            if (isDashAttackActive) CancelDashAttack();
             if (isAttacking) CancelAttack();
             StartBlock();
         }
