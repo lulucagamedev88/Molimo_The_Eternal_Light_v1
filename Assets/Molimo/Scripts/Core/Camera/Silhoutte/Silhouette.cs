@@ -1,8 +1,7 @@
 using UnityEngine;
 
-namespace MolimoByRodrigoLuluca
+namespace MolimoByLulucaGameDev
 {
-
     public class Silhouette : MonoBehaviour
     {
         #region Raycast Settings
@@ -11,7 +10,7 @@ namespace MolimoByRodrigoLuluca
         [SerializeField] private LayerMask environmentLayer;
         [SerializeField] private Transform raycastOrigin;
 
-        [Header("Line the")]
+        [Header("Line A")]
         [SerializeField, Min(0.01f)]
         private float lineADistance = 2f;
 
@@ -69,17 +68,25 @@ namespace MolimoByRodrigoLuluca
         private static readonly int FillOpacityID =
             Shader.PropertyToID("_FillOpacity");
 
+        // Visibilidade partilhada por todas as instâncias: a Camera_Silhouette é única
+        // e deve ficar ativa enquanto QUALQUER silhueta (Player ou Enemy) estiver visível.
+        private static int visibleCount;
+
         private Renderer[] objectRenderers;
 
         private MaterialPropertyBlock propertyBlock;
 
         private float currentOpacity;
+        private float lastAppliedOpacity = -1f;
+        private bool registeredVisible;
 
         #endregion
 
         #region Public Properties
 
         public bool IsSilhouetteVisible => currentOpacity > 0.01f;
+
+        public static bool AnySilhouetteVisible => visibleCount > 0;
 
         #endregion
 
@@ -93,9 +100,19 @@ namespace MolimoByRodrigoLuluca
 
             if (raycastOrigin == null)
                 raycastOrigin = transform;
+        }
 
-            fixedRaycastDirection =
-                raycastOrigin.forward.normalized;
+        private void OnDisable()
+        {
+            // Liberta o registo partilhado de visibilidade (evita contador preso entre runs).
+            if (registeredVisible)
+            {
+                registeredVisible = false;
+                visibleCount--;
+            }
+
+            currentOpacity = 0f;
+            lastAppliedOpacity = -1f;
         }
 
         #endregion
@@ -110,6 +127,11 @@ namespace MolimoByRodrigoLuluca
 
         private void CheckEnvironment()
         {
+            // Reavaliado a cada frame: inimigos rodam/spawnam com rotações diferentes,
+            // e uma direção congelada no Awake fazia a deteção falhar para sempre.
+            if (raycastOrigin != null)
+                fixedRaycastDirection = raycastOrigin.forward.normalized;
+
             lineADetected = false;
             lineBDetected = false;
             lineCDetected = false;
@@ -220,6 +242,9 @@ namespace MolimoByRodrigoLuluca
 
         private void UpdateOpacity()
         {
+            if (objectRenderers == null || objectRenderers.Length == 0)
+                return;
+
             bool silhouetteActive =
                 lineADetected || lineBDetected || lineCDetected;
 
@@ -230,11 +255,29 @@ namespace MolimoByRodrigoLuluca
             currentOpacity = Mathf.MoveTowards(
                 currentOpacity,
                 targetOpacity,
-                fadeSpeed * Time.deltaTime
+                fadeSpeed * Time.unscaledDeltaTime
             );
+
+            // Registo partilhado: a única Camera_Silhouette do cenário deve ficar
+            // ativa enquanto qualquer silhueta (Player ou Enemy) estiver visível.
+            bool visible = currentOpacity > 0.01f;
+            if (visible != registeredVisible)
+            {
+                registeredVisible = visible;
+                visibleCount += visible ? 1 : -1;
+            }
+
+            // Evita reescrever property blocks todos os frames quando nada mudou.
+            if (Mathf.Approximately(currentOpacity, lastAppliedOpacity))
+                return;
+
+            lastAppliedOpacity = currentOpacity;
 
             foreach (Renderer objectRenderer in objectRenderers)
             {
+                if (objectRenderer == null)
+                    continue;
+
                 objectRenderer.GetPropertyBlock(propertyBlock);
 
                 propertyBlock.SetFloat(
@@ -278,12 +321,6 @@ namespace MolimoByRodrigoLuluca
                 direction * lineCDistance;
 
             Quaternion rotA = Quaternion.LookRotation(direction);
-
-            Vector3 boxSize = new Vector3(
-                castWidth,
-                castHeight,
-                0.05f
-            );
 
             Gizmos.color = lineADetected
                 ? new Color(0, 1, 0, 0.3f)

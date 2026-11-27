@@ -1,12 +1,10 @@
 using UnityEngine;
 
-namespace MolimoByRodrigoLuluca
+namespace MolimoByLulucaGameDev
 {
-
     public class CameraRendererSwitcher : MonoBehaviour
     {
         [Header("references")]
-        [SerializeField] private Silhouette silhouetteScript;
         [SerializeField] private Camera silhouetteCamera;
 
         [Header("Delay")]
@@ -17,13 +15,21 @@ namespace MolimoByRodrigoLuluca
 
         private void Awake()
         {
-            if (silhouetteCamera != null)
-                silhouetteCamera.enabled = false;
+            if (silhouetteCamera == null)
+            {
+                Debug.LogError("[CameraRendererSwitcher] Silhouette Camera not assigned!", this);
+                enabled = false;
+                return;
+            }
+
+            silhouetteCamera.enabled = false;
         }
 
         private void Update()
         {
-            bool shouldActivate = silhouetteScript.IsSilhouetteVisible;
+            // Visibilidade partilhada: a câmera fica ativa enquanto QUALQUER
+            // Silhouette (Player ou Enemy) estiver visível.
+            bool shouldActivate = Silhouette.AnySilhouetteVisible;
 
             if (shouldActivate)
             {
@@ -37,13 +43,23 @@ namespace MolimoByRodrigoLuluca
             }
             else
             {
-                deactivationTimer += Time.deltaTime;
+                deactivationTimer += Time.unscaledDeltaTime;
 
                 if (isSilhouetteActive && deactivationTimer >= deactivationDelay)
                 {
                     isSilhouetteActive = false;
                     silhouetteCamera.enabled = false;
                 }
+            }
+        }
+
+        private void OnDisable()
+        {
+            // Nunca deixar a câmera de silhueta ligada se este switcher for desativado.
+            if (silhouetteCamera != null)
+            {
+                isSilhouetteActive = false;
+                silhouetteCamera.enabled = false;
             }
         }
     }
