@@ -67159,6 +67159,7 @@ MonoBehaviour:
   castHeight: 0.5
   maxFillOpacity: 1
   fadeSpeed: 7
+  fillMaterial: {fileID: 2100000, guid: e373f35389bb53848b90e10ea130d2c9, type: 2}
 --- !u!1001 &978161536
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -84293,7 +84294,7 @@ Camera:
   m_Depth: 10
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 2097224
+    m_Bits: 2129992
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
