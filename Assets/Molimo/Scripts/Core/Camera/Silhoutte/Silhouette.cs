@@ -91,6 +91,10 @@ namespace MolimoByLulucaGameDev
 
         private Renderer[] objectRenderers;
 
+        // Nº de materiais por renderer (paralelo a objectRenderers). Permite escrever
+        // property blocks POR ÍNDICE de material sem alocar sharedMaterials por frame.
+        private int[] materialCounts;
+
         private HashSet<Renderer> ignoredRendererSet;
 
         private MaterialPropertyBlock propertyBlock;
@@ -115,14 +119,31 @@ namespace MolimoByLulucaGameDev
         {
             propertyBlock = new MaterialPropertyBlock();
 
-            BuildIgnoredSet();
-            CollectRenderers();
+            RefreshRenderers();
 
             if (raycastOrigin == null)
                 raycastOrigin = transform;
+        }
+
+        private void OnEnable()
+        {
+            // Re-colhe os renderers ao reativar: cura caches obsoletos (renderers
+            // destruídos ou filhos adicionados enquanto o componente estava off).
+            if (propertyBlock != null)
+                RefreshRenderers();
+        }
+
+        // Recolhe os renderers válidos (exceto ignorados), aplica o material de fill
+        // onde falta e reconstrói o cache de contagem de materiais. Idempotente.
+        public void RefreshRenderers()
+        {
+            BuildIgnoredSet();
+            CollectRenderers();
 
             if (fillMaterial != null)
                 AppendFillMaterial();
+
+            CacheMaterialCounts();
         }
 
         private void BuildIgnoredSet()
@@ -227,6 +248,23 @@ namespace MolimoByLulucaGameDev
             return meshFilter != null && meshFilter.sharedMesh != null
                 ? meshFilter.sharedMesh.subMeshCount
                 : 1;
+        }
+
+        private void CacheMaterialCounts()
+        {
+            if (objectRenderers == null)
+                return;
+
+            materialCounts = new int[objectRenderers.Length];
+
+            for (int i = 0; i < objectRenderers.Length; i++)
+            {
+                Renderer objectRenderer = objectRenderers[i];
+
+                materialCounts[i] = objectRenderer != null
+                    ? objectRenderer.sharedMaterials.Length
+                    : 0;
+            }
         }
 
         private void OnDisable()
@@ -403,25 +441,43 @@ namespace MolimoByLulucaGameDev
                 visibleCount += visible ? 1 : -1;
             }
 
-            // Evita reescrever property blocks todos os frames quando nada mudou.
-            if (Mathf.Approximately(currentOpacity, lastAppliedOpacity))
-                return;
-
-            lastAppliedOpacity = currentOpacity;
-
-            foreach (Renderer objectRenderer in objectRenderers)
+            // Enquanto a silhueta está ativa, o _FillOpacity é REAFIRMADO todos os
+            // frames. Outros sistemas (ex.: PlayerDamageFlash) escrevem property
+            // blocks por índice de material nos mesmos renderers e podem apagar o
+            // _FillOpacity — e o material de fill tem _FillOpacity: 0 serializado,
+            // logo um block clobbered fica INVISÍVEL. Reafirmar por frame cura o
+            // estado preso; quando inativa (opacity 0), aplica só na transição.
+            if (currentOpacity > 0f ||
+                !Mathf.Approximately(currentOpacity, lastAppliedOpacity))
             {
+                ApplyOpacityToRenderers();
+                lastAppliedOpacity = currentOpacity;
+            }
+        }
+
+        // Escreve _FillOpacity POR ÍNDICE de material (Get → Set), preservando
+        // quaisquer outras propriedades que outros sistemas tenham colocado no
+        // mesmo índice (ex.: _BaseColor do flash de dano).
+        private void ApplyOpacityToRenderers()
+        {
+            for (int i = 0; i < objectRenderers.Length; i++)
+            {
+                Renderer objectRenderer = objectRenderers[i];
+
                 if (objectRenderer == null)
                     continue;
 
-                objectRenderer.GetPropertyBlock(propertyBlock);
+                int count = materialCounts != null && i < materialCounts.Length
+                    ? materialCounts[i]
+                    : 1;
 
-                propertyBlock.SetFloat(
-                    FillOpacityID,
-                    currentOpacity
-                );
-
-                objectRenderer.SetPropertyBlock(propertyBlock);
+                for (int materialIndex = 0; materialIndex < count; materialIndex++)
+                {
+                    propertyBlock.Clear();
+                    objectRenderer.GetPropertyBlock(propertyBlock, materialIndex);
+                    propertyBlock.SetFloat(FillOpacityID, currentOpacity);
+                    objectRenderer.SetPropertyBlock(propertyBlock, materialIndex);
+                }
             }
         }
 
