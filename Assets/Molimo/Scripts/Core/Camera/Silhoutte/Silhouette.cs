@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MolimoByLulucaGameDev
@@ -43,9 +44,14 @@ namespace MolimoByLulucaGameDev
         private Vector3 cachedWorldDirection;
 
         [Header("Fill Material (auto-attach)")]
-        [Tooltip("Material com o shader Molimo/Render/SilhouetteFill (ex.: M_SilhouetteOutline). Se atribuído, é adicionado automaticamente como material extra aos renderers filhos que ainda não tenham o pass de fill — sem editar os materiais de arte.")]
+        [Tooltip("Material com o shader Molimo/Render/SilhouetteFill (ex.: M_SilhouetteOutline). Se atribuído, é aplicado aos renderers filhos que ainda não tenham o pass de fill — sem editar os materiais de arte. Em malhas multi-submesh, os submeshes sem material próprio recebem o fill; os restantes são preenchidos pelo RenderObjects override do PC_Renderer_Silhouette.")]
         [SerializeField]
         private Material fillMaterial;
+
+        [Header("Ignored Renderers")]
+        [Tooltip("Renderers que devem ser completamente ignorados pelo efeito de silhueta: não recebem o material de fill nem a opacidade.")]
+        [SerializeField]
+        private List<Renderer> ignoredRenderers = new List<Renderer>();
 
         private Vector3 lineAEnd;
         private Vector3 lineBOrigin;
@@ -84,6 +90,8 @@ namespace MolimoByLulucaGameDev
 
         private Renderer[] objectRenderers;
 
+        private HashSet<Renderer> ignoredRendererSet;
+
         private MaterialPropertyBlock propertyBlock;
 
         private float currentOpacity;
@@ -106,7 +114,8 @@ namespace MolimoByLulucaGameDev
         {
             propertyBlock = new MaterialPropertyBlock();
 
-            objectRenderers = GetComponentsInChildren<Renderer>(true);
+            BuildIgnoredSet();
+            CollectRenderers();
 
             if (raycastOrigin == null)
                 raycastOrigin = transform;
@@ -115,10 +124,54 @@ namespace MolimoByLulucaGameDev
                 AppendFillMaterial();
         }
 
+        private void BuildIgnoredSet()
+        {
+            ignoredRendererSet = new HashSet<Renderer>();
+
+            if (ignoredRenderers == null)
+                return;
+
+            foreach (Renderer ignored in ignoredRenderers)
+            {
+                if (ignored != null)
+                    ignoredRendererSet.Add(ignored);
+            }
+        }
+
+        private void CollectRenderers()
+        {
+            Renderer[] allRenderers = GetComponentsInChildren<Renderer>(true);
+
+            if (ignoredRendererSet.Count == 0)
+            {
+                objectRenderers = allRenderers;
+                return;
+            }
+
+            List<Renderer> filtered = new List<Renderer>(allRenderers.Length);
+
+            foreach (Renderer objectRenderer in allRenderers)
+            {
+                if (!ignoredRendererSet.Contains(objectRenderer))
+                    filtered.Add(objectRenderer);
+            }
+
+            objectRenderers = filtered.ToArray();
+        }
+
         // Garante que cada renderer filho consegue visualizar o fill: se nenhum dos
         // seus materiais atuais tiver a propriedade _FillOpacity (shader SilhouetteFill),
-        // o material de fill é anexado como slot extra. Renderers que já tenham o pass
-        // (ex.: materiais do Player) ficam intactos.
+        // o material de fill é aplicado — sem editar os materiais de arte.
+        //
+        // Mapeamento do Unity (docs Unity 6): slot de material i -> submesh i, e slots
+        // EXTRA (para além do nº de submeshes) acumulam-se apenas sobre o ÚLTIMO submesh.
+        // Por isso o fill é atribuído por submesh:
+        //  - mais submeshes que materiais: os slots em falta recebem o fill (cobertura 100%);
+        //  - malha de 1 submesh: o slot extra anexado cobre a malha inteira;
+        //  - malha multi-submesh já totalmente mapeada: anexar só cobriria o último submesh
+        //    (fill parcial — o bug antigo). Nesse caso o fill é desenhado pelo RenderObjects
+        //    override do PC_Renderer_Silhouette, que redesenha TODOS os submeshes com o
+        //    material de fill (ZTest GreaterEqual) apenas na Camera_Silhouette.
         private void AppendFillMaterial()
         {
             foreach (Renderer objectRenderer in objectRenderers)
@@ -141,11 +194,38 @@ namespace MolimoByLulucaGameDev
                 if (hasFillPass)
                     continue;
 
-                Material[] appended = new Material[materials.Length + 1];
-                materials.CopyTo(appended, 0);
-                appended[materials.Length] = fillMaterial;
-                objectRenderer.sharedMaterials = appended;
+                int subMeshCount = GetSubMeshCount(objectRenderer);
+
+                if (subMeshCount > materials.Length)
+                {
+                    Material[] padded = new Material[subMeshCount];
+                    materials.CopyTo(padded, 0);
+
+                    for (int i = materials.Length; i < subMeshCount; i++)
+                        padded[i] = fillMaterial;
+
+                    objectRenderer.sharedMaterials = padded;
+                }
+                else if (subMeshCount == 1)
+                {
+                    Material[] appended = new Material[materials.Length + 1];
+                    materials.CopyTo(appended, 0);
+                    appended[materials.Length] = fillMaterial;
+                    objectRenderer.sharedMaterials = appended;
+                }
             }
+        }
+
+        private static int GetSubMeshCount(Renderer renderer)
+        {
+            if (renderer is SkinnedMeshRenderer skinned)
+                return skinned.sharedMesh != null ? skinned.sharedMesh.subMeshCount : 1;
+
+            MeshFilter meshFilter = renderer.GetComponent<MeshFilter>();
+
+            return meshFilter != null && meshFilter.sharedMesh != null
+                ? meshFilter.sharedMesh.subMeshCount
+                : 1;
         }
 
         private void OnDisable()
