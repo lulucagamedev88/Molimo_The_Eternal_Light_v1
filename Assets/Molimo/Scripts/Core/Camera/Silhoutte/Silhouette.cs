@@ -35,7 +35,12 @@ namespace MolimoByLulucaGameDev
         [SerializeField, Min(0.01f)]
         private float castHeight = 0.5f;
 
-        private Vector3 fixedRaycastDirection;
+        [Header("World Raycast Direction (world-locked)")]
+        [Tooltip("Direção dos raycasts em ESPAÇO MUNDO. É totalmente independente da rotação do objeto — o objeto pode rodar livremente sem afetar a deteção.")]
+        [SerializeField]
+        private Vector3 worldRaycastDirection = Vector3.forward;
+
+        private Vector3 cachedWorldDirection;
 
         private Vector3 lineAEnd;
         private Vector3 lineBOrigin;
@@ -121,17 +126,26 @@ namespace MolimoByLulucaGameDev
 
         private void Update()
         {
+            if (raycastOrigin == null)
+                raycastOrigin = transform;
+
+            UpdateWorldDirection();
             CheckEnvironment();
             UpdateOpacity();
         }
 
+        private void UpdateWorldDirection()
+        {
+            // Normalizada com segurança; nunca lê a rotação do objeto — apenas o valor
+            // de inspetor em espaço-mundo. Default: (0, 0, 1).
+            cachedWorldDirection = worldRaycastDirection.sqrMagnitude > 0.0001f
+                ? worldRaycastDirection.normalized
+                : Vector3.forward;
+        }
+
         private void CheckEnvironment()
         {
-            // Reavaliado a cada frame: inimigos rodam/spawnam com rotações diferentes,
-            // e uma direção congelada no Awake fazia a deteção falhar para sempre.
-            if (raycastOrigin != null)
-                fixedRaycastDirection = raycastOrigin.forward.normalized;
-
+            // Direção 100% vinculada ao mundo: nunca deriva da rotação do objeto.
             lineADetected = false;
             lineBDetected = false;
             lineCDetected = false;
@@ -143,19 +157,19 @@ namespace MolimoByLulucaGameDev
             Vector3 origin = raycastOrigin.position;
 
             lineAEnd = origin +
-                       fixedRaycastDirection * lineADistance;
+                       cachedWorldDirection * lineADistance;
 
             lineBOrigin = origin +
                           Vector3.up * lineBHeightOffset;
 
             lineBEnd = lineBOrigin +
-                       fixedRaycastDirection * lineBDistance;
+                       cachedWorldDirection * lineBDistance;
 
             lineCOrigin = origin +
                           Vector3.up * lineCHeightOffset;
 
             lineCEnd = lineCOrigin +
-                       fixedRaycastDirection * lineCDistance;
+                       cachedWorldDirection * lineCDistance;
 
             lineADetected = DetectEnvironment(
                 origin,
@@ -299,9 +313,9 @@ namespace MolimoByLulucaGameDev
                 ? raycastOrigin
                 : transform;
 
-            Vector3 direction = Application.isPlaying
-                ? fixedRaycastDirection
-                : originTransform.forward.normalized;
+            Vector3 direction = worldRaycastDirection.sqrMagnitude > 0.0001f
+                ? worldRaycastDirection.normalized
+                : Vector3.forward;
 
             Vector3 origin = originTransform.position;
 
@@ -406,6 +420,12 @@ namespace MolimoByLulucaGameDev
 
         private void OnValidate()
         {
+            // Mantém a direção mundial normalizada no inspetor (sem afetar a rotação do objeto).
+            if (worldRaycastDirection.sqrMagnitude > 0.0001f)
+                worldRaycastDirection = worldRaycastDirection.normalized;
+            else
+                worldRaycastDirection = Vector3.forward;
+
             if (lineADistance < 0.01f)
                 lineADistance = 0.01f;
 
