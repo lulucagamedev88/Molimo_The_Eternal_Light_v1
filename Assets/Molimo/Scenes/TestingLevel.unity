@@ -1604,24 +1604,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: arrivalDistance
       value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_002
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4065,21 +4053,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_006 (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6794,21 +6770,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_006 (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6909,21 +6873,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_005
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -18103,7 +18055,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 139895846284868389, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 773161370151346591, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.x
@@ -18119,7 +18071,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c638d15f907afd048adcb2ec2923c4ce, type: 2}
     - target: {fileID: 3515931687466557148, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5459614790425385252, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.y
@@ -18127,7 +18079,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5814523018709619198, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Name
@@ -18135,7 +18087,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_IsActive
@@ -18255,21 +18207,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_003 (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -18434,24 +18374,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: arrivalDistance
       value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_002 (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -18516,21 +18444,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_008 (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -18781,21 +18697,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_008 (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -19098,7 +19002,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 139895846284868389, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 773161370151346591, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.x
@@ -19114,7 +19018,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c638d15f907afd048adcb2ec2923c4ce, type: 2}
     - target: {fileID: 3515931687466557148, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5459614790425385252, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.y
@@ -19122,7 +19026,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5814523018709619198, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Name
@@ -19130,7 +19034,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_IsActive
@@ -24420,21 +24324,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_008
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -30596,21 +30488,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_005 (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -41277,7 +41157,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 536084351
+    m_Bits: 266305335
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -46892,21 +46772,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_003 (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -62049,21 +61917,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_009 (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -64551,21 +64407,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_004 (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -65086,21 +64930,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_007 (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -67583,24 +67415,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: arrivalDistance
       value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_002 (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -69792,21 +69612,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_004
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -78913,21 +78721,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_006
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -78982,21 +78778,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_005 (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -80135,21 +79919,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_004 (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -81549,25 +81321,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
-      value: 0.3030175
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_009 (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -85897,21 +85653,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_009
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -91346,7 +91090,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 139895846284868389, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 773161370151346591, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.x
@@ -91362,7 +91106,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c638d15f907afd048adcb2ec2923c4ce, type: 2}
     - target: {fileID: 3515931687466557148, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5459614790425385252, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.y
@@ -91370,7 +91114,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5814523018709619198, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Name
@@ -91378,7 +91122,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_IsActive
@@ -92837,7 +92581,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 139895846284868389, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 773161370151346591, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.x
@@ -92853,7 +92597,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c638d15f907afd048adcb2ec2923c4ce, type: 2}
     - target: {fileID: 3515931687466557148, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5459614790425385252, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.y
@@ -92861,7 +92605,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5814523018709619198, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Name
@@ -92869,7 +92613,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_IsActive
@@ -115828,7 +115572,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 139895846284868389, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 773161370151346591, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.x
@@ -115844,7 +115588,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c638d15f907afd048adcb2ec2923c4ce, type: 2}
     - target: {fileID: 3515931687466557148, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5459614790425385252, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.y
@@ -115852,7 +115596,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5814523018709619198, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Name
@@ -115860,7 +115604,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_IsActive
@@ -122568,7 +122312,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 139895846284868389, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 773161370151346591, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.x
@@ -122584,7 +122328,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c638d15f907afd048adcb2ec2923c4ce, type: 2}
     - target: {fileID: 3515931687466557148, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5459614790425385252, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_LocalPosition.y
@@ -122592,7 +122336,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5814523018709619198, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Name
@@ -122600,7 +122344,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_Layer
-      value: 18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6010743130472143999, guid: 6a21bcdc97a92c34690ee95129a7cd85, type: 3}
       propertyPath: m_IsActive
@@ -128843,21 +128587,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_003
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -130724,21 +130456,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_007
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -138129,21 +137849,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523417576027946350, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: healCharge
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2035387239371409165, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
       propertyPath: m_Name
       value: Fly_HP_007 (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2727560846476410085, guid: 5bba041c37f8acc47903540a97a7d97b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
