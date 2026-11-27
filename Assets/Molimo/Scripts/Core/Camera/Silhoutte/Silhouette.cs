@@ -467,9 +467,14 @@ namespace MolimoByLulucaGameDev
                 if (objectRenderer == null)
                     continue;
 
-                int count = materialCounts != null && i < materialCounts.Length
-                    ? materialCounts[i]
-                    : 1;
+                // Contagem REAL de materiais do renderer: sistemas externos podem
+                // mudar sharedMaterials em runtime (ex.: troca de arma) e um cache
+                // obsoleto causaria "index out of range". Corre só enquanto a
+                // silhueta está ativa.
+                int count = objectRenderer.sharedMaterials.Length;
+
+                if (materialCounts != null && i < materialCounts.Length)
+                    materialCounts[i] = count;
 
                 for (int materialIndex = 0; materialIndex < count; materialIndex++)
                 {
