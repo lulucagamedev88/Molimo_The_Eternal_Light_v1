@@ -407,6 +407,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6875100938827924329}
   m_SourcePrefab: {fileID: 100100000, guid: a258ad2adf5cfbb46b899fa550c3fc55, type: 3}
+--- !u!23 &5527668862548940484 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: a258ad2adf5cfbb46b899fa550c3fc55, type: 3}
+  m_PrefabInstance: {fileID: 6590925880339794496}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6320456809334716177 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a258ad2adf5cfbb46b899fa550c3fc55, type: 3}
@@ -1838,11 +1843,12 @@ MonoBehaviour:
   lineBDistance: 5.5
   lineCHeightOffset: 20
   lineCDistance: 50
-  castWidth: 0.5
-  lineHeight: 7.05
+  castWidth: 0.3
+  lineHeight: 4.94
   worldRaycastDirection: {x: 0, y: 0, z: -1}
   fillMaterial: {fileID: 2100000, guid: 91180550b2039ce45a27d923465ac6e5, type: 2}
-  ignoredRenderers: []
+  ignoredRenderers:
+  - {fileID: 5527668862548940484}
   maxFillOpacity: 1
   fadeSpeed: 7
 --- !u!4 &6494033506178860148 stripped
