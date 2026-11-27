@@ -3,7 +3,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.RenderGraphModule;
 
-namespace MolimoByRodrigoLuluca
+namespace MolimoByLulucaGameDev
 {
 
     public class ClearDepthFeature : ScriptableRendererFeature
