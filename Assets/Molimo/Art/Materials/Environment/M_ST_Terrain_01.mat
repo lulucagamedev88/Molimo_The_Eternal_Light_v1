@@ -14,6 +14,7 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _ALWAYSONTOP_ON
+  - _CLOUDSHADOWENABLE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -62,9 +63,9 @@ Material:
     - _Clipped: 0
     - _CloudShadowCenterX: 0
     - _CloudShadowCenterZ: 0
-    - _CloudShadowEnable: 0
+    - _CloudShadowEnable: 1
     - _CloudShadowInvert: 0
-    - _CloudShadowStrength: 0.7
+    - _CloudShadowStrength: 0.866
     - _CloudShadowTiling: 1
     - _CloudShadowWorldSize: 100
     - _Cutoff: 0.5
