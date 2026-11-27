@@ -42,11 +42,6 @@ namespace MolimoByLulucaGameDev
 
         private Vector3 cachedWorldDirection;
 
-        [Header("Fill Material (auto-attach)")]
-        [Tooltip("Material com o shader Molimo/Render/SilhouetteFill (ex.: M_SilhouetteOutline). Se atribuído, é adicionado automaticamente como material extra aos renderers filhos que ainda não tenham o pass de fill — sem editar os materiais de arte.")]
-        [SerializeField]
-        private Material fillMaterial;
-
         private Vector3 lineAEnd;
         private Vector3 lineBOrigin;
         private Vector3 lineBEnd;
@@ -110,42 +105,6 @@ namespace MolimoByLulucaGameDev
 
             if (raycastOrigin == null)
                 raycastOrigin = transform;
-
-            if (fillMaterial != null)
-                AppendFillMaterial();
-        }
-
-        // Garante que cada renderer filho consegue visualizar o fill: se nenhum dos
-        // seus materiais atuais tiver a propriedade _FillOpacity (shader SilhouetteFill),
-        // o material de fill é anexado como slot extra. Renderers que já tenham o pass
-        // (ex.: materiais do Player) ficam intactos.
-        private void AppendFillMaterial()
-        {
-            foreach (Renderer objectRenderer in objectRenderers)
-            {
-                if (objectRenderer == null)
-                    continue;
-
-                Material[] materials = objectRenderer.sharedMaterials;
-
-                bool hasFillPass = false;
-                foreach (Material material in materials)
-                {
-                    if (material != null && material.HasProperty(FillOpacityID))
-                    {
-                        hasFillPass = true;
-                        break;
-                    }
-                }
-
-                if (hasFillPass)
-                    continue;
-
-                Material[] appended = new Material[materials.Length + 1];
-                materials.CopyTo(appended, 0);
-                appended[materials.Length] = fillMaterial;
-                objectRenderer.sharedMaterials = appended;
-            }
         }
 
         private void OnDisable()
