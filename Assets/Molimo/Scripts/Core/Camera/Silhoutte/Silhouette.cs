@@ -33,8 +33,9 @@ namespace MolimoByLulucaGameDev
         [SerializeField, Min(0.01f)]
         private float castWidth = 0.5f;
 
+        [Tooltip("Altura/grossura VERTICAL da caixa de deteção de cada linha (volume na direção do eixo Y do mundo). Aumenta o alcance vertical do raycast conforme o valor configurado.")]
         [SerializeField, Min(0.01f)]
-        private float castHeight = 0.5f;
+        private float lineHeight = 0.5f;
 
         [Header("World Raycast Direction (world-locked)")]
         [Tooltip("Direção dos raycasts em ESPAÇO MUNDO. É totalmente independente da rotação do objeto — o objeto pode rodar livremente sem afetar a deteção.")]
@@ -328,7 +329,7 @@ namespace MolimoByLulucaGameDev
 
             Vector3 halfExtents = new Vector3(
                 castWidth * 0.5f,
-                castHeight * 0.5f,
+                lineHeight * 0.5f,
                 0f
             );
 
@@ -469,7 +470,7 @@ namespace MolimoByLulucaGameDev
 
             Gizmos.DrawCube(
                 Vector3.zero,
-                new Vector3(castWidth, castHeight, lineADistance)
+                new Vector3(castWidth, lineHeight, lineADistance)
             );
 
             Gizmos.matrix = Matrix4x4.identity;
@@ -496,7 +497,7 @@ namespace MolimoByLulucaGameDev
 
             Gizmos.DrawCube(
                 Vector3.zero,
-                new Vector3(castWidth, castHeight, lineBDistance)
+                new Vector3(castWidth, lineHeight, lineBDistance)
             );
 
             Gizmos.matrix = Matrix4x4.identity;
@@ -523,7 +524,7 @@ namespace MolimoByLulucaGameDev
 
             Gizmos.DrawCube(
                 Vector3.zero,
-                new Vector3(castWidth, castHeight, lineCDistance)
+                new Vector3(castWidth, lineHeight, lineCDistance)
             );
 
             Gizmos.matrix = Matrix4x4.identity;
@@ -559,8 +560,8 @@ namespace MolimoByLulucaGameDev
             if (castWidth < 0.01f)
                 castWidth = 0.01f;
 
-            if (castHeight < 0.01f)
-                castHeight = 0.01f;
+            if (lineHeight < 0.01f)
+                lineHeight = 0.01f;
         }
 
         #endregion
