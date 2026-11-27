@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Molimo::MolimoByLulucaGameDev.SoundData
   soundName: sd_player_death_01
   clip: {fileID: 8300000, guid: cbae53f704c988e4d895742abe4c6a8f, type: 3}
-  volume: 0.6
-  pitch: 1.4
+  volume: 0.5
+  pitch: 1.65
   pitchRandomness: 0.445
   loop: 0
   priority: 128

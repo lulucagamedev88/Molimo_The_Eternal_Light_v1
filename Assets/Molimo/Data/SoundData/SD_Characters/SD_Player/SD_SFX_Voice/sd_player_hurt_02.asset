@@ -15,7 +15,7 @@ MonoBehaviour:
   soundName: sd_voice_hurt_player_03
   clip: {fileID: 8300000, guid: 1384800705a4a3b48afb7234c127fa22, type: 3}
   volume: 0.35
-  pitch: 0.8
+  pitch: 1.2
   pitchRandomness: 0
   loop: 0
   priority: 128

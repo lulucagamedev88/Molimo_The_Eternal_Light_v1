@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Molimo::MolimoByLulucaGameDev.SoundData
   soundName: sd_sword_clash_01
   clip: {fileID: 8300000, guid: ca850835ae6383b41867d6fd42e59f1a, type: 3}
-  volume: 0.25
+  volume: 0.02
   pitch: 1
   pitchRandomness: 0.105
   loop: 0

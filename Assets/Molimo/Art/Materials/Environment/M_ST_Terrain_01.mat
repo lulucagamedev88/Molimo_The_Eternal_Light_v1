@@ -64,7 +64,7 @@ Material:
     - _CloudShadowCenterZ: 0
     - _CloudShadowEnable: 0
     - _CloudShadowInvert: 0
-    - _CloudShadowStrength: 0
+    - _CloudShadowStrength: 0.7
     - _CloudShadowTiling: 1
     - _CloudShadowWorldSize: 100
     - _Cutoff: 0.5
