@@ -66255,13 +66255,16 @@ MonoBehaviour:
     m_Bits: 262144
   raycastOrigin: {fileID: 1501035656}
   lineADistance: 1.5
-  lineBHeightOffset: 3
-  lineBDistance: 4
+  lineBHeightOffset: 6
+  lineBDistance: 5
   lineCHeightOffset: 20
   lineCDistance: 50
   castWidth: 0.5
-  lineHeight: 0.5
-  fillMaterial: {fileID: 2100000, guid: e373f35389bb53848b90e10ea130d2c9, type: 2}
+  lineHeight: 5.35
+  worldRaycastDirection: {x: 0, y: 0, z: -1}
+  fillMaterial: {fileID: 2100000, guid: 91180550b2039ce45a27d923465ac6e5, type: 2}
+  ignoredRenderers:
+  - {fileID: 2141176502}
   maxFillOpacity: 1
   fadeSpeed: 7
 --- !u!1001 &978161536
@@ -83192,7 +83195,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 196fa80a54b55c247b252d854fe1dd11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MolimoByRodrigoLuluca.CameraRendererSwitcher
-  silhouetteScript: {fileID: 976523154}
   silhouetteCamera: {fileID: 1413625320}
   deactivationDelay: 0.1
 --- !u!114 &1413625318

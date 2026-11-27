@@ -482,7 +482,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1589fa2014ca2164f9e08237fde95310, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 27.3
+      value: 40.4
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1589fa2014ca2164f9e08237fde95310, type: 3}
       propertyPath: m_LocalPosition.y
@@ -490,7 +490,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1589fa2014ca2164f9e08237fde95310, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.1
+      value: -22
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1589fa2014ca2164f9e08237fde95310, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1834,13 +1834,15 @@ MonoBehaviour:
     m_Bits: 262144
   raycastOrigin: {fileID: 0}
   lineADistance: 3.5
-  lineBHeightOffset: 3
+  lineBHeightOffset: 10
   lineBDistance: 5.5
   lineCHeightOffset: 20
   lineCDistance: 50
   castWidth: 0.5
-  castHeight: 0.5
+  lineHeight: 7.05
   worldRaycastDirection: {x: 0, y: 0, z: -1}
+  fillMaterial: {fileID: 2100000, guid: 91180550b2039ce45a27d923465ac6e5, type: 2}
+  ignoredRenderers: []
   maxFillOpacity: 1
   fadeSpeed: 7
 --- !u!4 &6494033506178860148 stripped
