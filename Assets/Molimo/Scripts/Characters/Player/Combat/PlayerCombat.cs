@@ -151,6 +151,10 @@ namespace MolimoByLulucaGameDev
         [Min(0.05f)]
         [SerializeField] private float dashMaxDuration = 0.5f;
 
+        [Tooltip("distância mínima (m) ao inimigo para o dash acontecer; se estiver mais perto (frente a frente), o Attack é normal.")]
+        [Min(0f)]
+        [SerializeField] private float dashAttackMinDistance = 3f;
+
         [Tooltip("GhostTrail usado para gerar os rastos do Player durante o dash.")]
         [SerializeField] private GhostTrail ghostTrail;
 
@@ -834,6 +838,10 @@ namespace MolimoByLulucaGameDev
             int count = Physics.OverlapSphereNonAlloc(transform.position, dashDetectionRadius, targetScanBuffer, enemyLayer);
             if (count == 0) return null;
 
+            // O dash só acontece para inimigos realmente distantes; se o mais próximo
+            // já está frente a frente (dentro da distância mínima), o Attack é normal.
+            float minDashDistance = Mathf.Max(dashAttackMinDistance, dashStopDistance);
+
             Collider closest = null;
             float minDistance = float.MaxValue;
 
@@ -846,7 +854,7 @@ namespace MolimoByLulucaGameDev
                 dirToEnemy.y = 0f;
                 float distance = dirToEnemy.magnitude;
 
-                if (distance <= dashStopDistance) continue;
+                if (distance <= minDashDistance) continue;
 
                 if (distance < minDistance)
                 {
