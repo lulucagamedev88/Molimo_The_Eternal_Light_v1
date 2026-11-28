@@ -269,6 +269,10 @@ namespace MolimoByLulucaGameDev
             if (ghostTrail == null) ghostTrail = GetComponent<GhostTrail>();
             if (ghostTrail == null) ghostTrail = GetComponentInChildren<GhostTrail>(true);
 
+            if (playerVFX == null) playerVFX = GetComponent<PlayerVFX>();
+            if (playerVFX == null) playerVFX = GetComponentInParent<PlayerVFX>();
+            if (playerVFX == null) playerVFX = GetComponentInChildren<PlayerVFX>(true);
+
             InitializeAnimatorParameters();
             ValidateCombatAnimatorParameters();
             InitializeInputSystem();
