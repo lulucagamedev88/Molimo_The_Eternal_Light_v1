@@ -158,6 +158,9 @@ namespace MolimoByLulucaGameDev
         [Tooltip("GhostTrail usado para gerar os rastos do Player durante o dash.")]
         [SerializeField] private GhostTrail ghostTrail;
 
+        [Tooltip("PlayerVFX que controla os efeitos visuais do DashAttack (lista configurável no próprio PlayerVFX).")]
+        [SerializeField] private PlayerVFX playerVFX;
+
         [Header("Block Settings")]
         [SerializeField] private float blockDuration = 0.4f;
         [SerializeField] private Collider shieldCollider;
@@ -903,6 +906,9 @@ namespace MolimoByLulucaGameDev
                 float estimatedDuration = direction.magnitude / Mathf.Max(0.01f, dashSpeed);
                 ghostTrail.ShowGhostTrail(Mathf.Min(estimatedDuration, dashMaxDuration));
             }
+
+            // O PlayerVFX controla os efeitos: o Combat apenas dispara o evento.
+            playerVFX?.PlayDashAttackVFX(dashDirection);
 
             return true;
         }
