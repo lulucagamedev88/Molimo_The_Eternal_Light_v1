@@ -18,6 +18,7 @@ namespace MolimoByLulucaGameDev
             DashAttack,
             Cooldown,
             Stagger,
+            ReturnToOrigin,
             Dead
         }
 
@@ -63,6 +64,16 @@ namespace MolimoByLulucaGameDev
 
         [Header("movement")]
         [SerializeField] private float chaseSpeed = 3.5f;
+
+        [Header("Return to Origin (Player Morto)")]
+        [Tooltip("Se ON, quando o Player morre o inimigo caminha de volta à posição inicial (spawn) em vez de ficar parado junto ao cadáver. Chegando, volta ao Idle/patrulha.")]
+        [SerializeField] private bool returnToOriginOnPlayerDeath = true;
+
+        [Tooltip("Velocidade da caminhada de retorno à origem.")]
+        [SerializeField, Min(0.1f)] private float returnToOriginSpeed = 2.5f;
+
+        [Tooltip("Distância da origem considerada 'chegou' (o inimigo para e volta ao Idle).")]
+        [SerializeField, Min(0.05f)] private float returnArriveDistance = 0.25f;
 
         [Header("attacks (Rays of Action)")]
         [Tooltip("distance maximum is start any attack.")]
@@ -194,6 +205,8 @@ namespace MolimoByLulucaGameDev
 
         private State _state = State.Idle;
         private float _stateTimer;
+        private Vector3 _spawnPosition;
+        private Quaternion _spawnRotation;
         private float _attackCooldownTimer;
         private Vector3 _chaseDir;
         private Vector3 _dashDirection;
@@ -231,6 +244,9 @@ namespace MolimoByLulucaGameDev
             _snappedRotation = SnapQuaternion(rb.rotation);
             rb.MoveRotation(_snappedRotation);
 
+            _spawnPosition = rb.position;
+            _spawnRotation = _snappedRotation;
+
             _hWalk = Animator.StringToHash(animWalk);
             _hWaitAttack = Animator.StringToHash(animWaitAttack);
             _hAttack = Animator.StringToHash(animAttack);
@@ -261,6 +277,14 @@ namespace MolimoByLulucaGameDev
 
             RetryResolvePlayer();
 
+            if (returnToOriginOnPlayerDeath &&
+                _state != State.ReturnToOrigin &&
+                _state != State.Dead &&
+                IsPlayerDead())
+            {
+                EnterReturnToOrigin();
+            }
+
             switch (_state)
             {
                 case State.Idle: TickIdle(); break;
@@ -270,9 +294,10 @@ namespace MolimoByLulucaGameDev
                 case State.DashAttack: TickDashAttack(); break;
                 case State.Cooldown: TickCooldown(); break;
                 case State.Stagger: TickStagger(); break;
+                case State.ReturnToOrigin: TickReturnToOrigin(); break;
             }
 
-            if (_state == State.Chase)
+            if (_state == State.Chase || _state == State.ReturnToOrigin)
             {
                 TickWalkSound();
             }
@@ -299,6 +324,10 @@ namespace MolimoByLulucaGameDev
             {
                 ApplyMovementToward(chaseSpeed);
             }
+            else if (_state == State.ReturnToOrigin)
+            {
+                ApplyMovementToward(returnToOriginSpeed);
+            }
             else if (_state == State.DashAttack)
             {
                 if (rb != null && !rb.isKinematic)
@@ -320,6 +349,53 @@ namespace MolimoByLulucaGameDev
             ChangeState(State.Idle);
             SetWalking(false);
             StopHorizontal();
+        }
+
+        private void EnterReturnToOrigin()
+        {
+            ChangeState(State.ReturnToOrigin);
+            SetWalking(true);
+            if (rb != null && !rb.isKinematic) rb.WakeUp();
+            UpdateReturnDirection();
+
+            if (logStates) Debug.Log("[EnemySpiderAI] RETURN TO ORIGIN (Player morto).");
+        }
+
+        private void TickReturnToOrigin()
+        {
+            if (DistanceToOrigin() <= returnArriveDistance)
+            {
+                if (rb != null && !rb.isKinematic)
+                    rb.position = new Vector3(_spawnPosition.x, rb.position.y, _spawnPosition.z);
+
+                _snappedRotation = _spawnRotation;
+                _chaseDir = Vector3.zero;
+                EnterIdle();
+                return;
+            }
+
+            UpdateReturnDirection();
+        }
+
+        private bool IsPlayerDead()
+        {
+            return playerBrain != null && !playerBrain.IsAlive;
+        }
+
+        private float DistanceToOrigin()
+        {
+            Vector3 pos = rb != null ? rb.position : transform.position;
+            pos.y = 0f;
+            Vector3 origin = _spawnPosition;
+            origin.y = 0f;
+            return Vector3.Distance(pos, origin);
+        }
+
+        private void UpdateReturnDirection()
+        {
+            Vector3 dir = _spawnPosition - transform.position;
+            dir.y = 0f;
+            _chaseDir = dir.sqrMagnitude < 0.0001f ? Vector3.zero : dir.normalized;
         }
 
         private void TickIdle()
@@ -728,6 +804,11 @@ namespace MolimoByLulucaGameDev
                 dir.y = 0f;
                 if (dir.sqrMagnitude < 0.0001f) return;
                 _snappedRotation = ComputeFacingRotation(dir);
+            }
+            else if (_state == State.ReturnToOrigin)
+            {
+                if (_chaseDir.sqrMagnitude < 0.0001f) return;
+                _snappedRotation = ComputeFacingRotation(_chaseDir);
             }
         }
 
