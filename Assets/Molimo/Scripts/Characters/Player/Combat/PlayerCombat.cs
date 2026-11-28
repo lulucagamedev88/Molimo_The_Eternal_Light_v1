@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -157,6 +158,10 @@ namespace MolimoByLulucaGameDev
 
         [Tooltip("GhostTrail usado para gerar os rastos do Player durante o dash.")]
         [SerializeField] private GhostTrail ghostTrail;
+
+        [Header("Dash Attack VFX")]
+        [Tooltip("ParticleSystems disparados sempre que o DashAttack é ativado. VFX filhos do Player seguem a rotação do dash; VFX externos são reposicionados no Player e rodados para a direção do dash.")]
+        [SerializeField] private List<ParticleSystem> dashAttackVFX = new List<ParticleSystem>();
 
         [Header("Block Settings")]
         [SerializeField] private float blockDuration = 0.4f;
@@ -904,7 +909,35 @@ namespace MolimoByLulucaGameDev
                 ghostTrail.ShowGhostTrail(Mathf.Min(estimatedDuration, dashMaxDuration));
             }
 
+            PlayDashAttackVFX();
+
             return true;
+        }
+
+        // Dispara todos os VFX configurados. Slots vazios (None) são ignorados com
+        // segurança; o Stop→Clear→Play reinicia emissões pendentes de dashes anteriores.
+        private void PlayDashAttackVFX()
+        {
+            if (dashAttackVFX == null || dashAttackVFX.Count == 0)
+                return;
+
+            Quaternion dashRotation = Quaternion.LookRotation(dashDirection);
+
+            for (int i = 0; i < dashAttackVFX.Count; i++)
+            {
+                ParticleSystem vfx = dashAttackVFX[i];
+
+                if (vfx == null)
+                    continue;
+
+                // VFX externos (não filhos do Player) são movidos para a origem do dash
+                // e alinhados com a direção; VFX filhos já seguem a rotação do corpo.
+                if (!vfx.transform.IsChildOf(transform))
+                    vfx.transform.SetPositionAndRotation(transform.position, dashRotation);
+
+                vfx.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                vfx.Play(true);
+            }
         }
 
         private void UpdateDashAttackTimers(float dt)
