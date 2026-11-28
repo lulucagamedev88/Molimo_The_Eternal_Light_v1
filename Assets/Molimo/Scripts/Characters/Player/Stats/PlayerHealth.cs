@@ -14,6 +14,8 @@ namespace MolimoByLulucaGameDev
         [SerializeField] private PlayerBrain brain;
         [SerializeField] private PlayerCombat combat;
 
+        private PlayerHaptics _haptics;
+
         [Header("Health Settings")]
         [SerializeField] private float maxHealth = 100f;
         [SerializeField] private float currentHealth = 100f;
@@ -211,6 +213,9 @@ namespace MolimoByLulucaGameDev
                 }
                 else
                 {
+                    if (_haptics == null) _haptics = GetComponentInParent<PlayerHaptics>();
+                    _haptics?.PlayBlockImpact();
+
                     return;
                 }
             }

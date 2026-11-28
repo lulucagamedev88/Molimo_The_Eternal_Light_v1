@@ -80,6 +80,7 @@ namespace MolimoByLulucaGameDev
 
         private Collider _col;
         private SFXPool _sfxPool;
+        private PlayerHaptics _haptics;
 
         private bool _isHitWindowActive;
         private float _hitWindowOpenTime;
@@ -433,6 +434,9 @@ namespace MolimoByLulucaGameDev
             target?.TakeDamage(_currentDamage, _currentKnockbackDistance);
 
             ApplyKnockbackTo(other);
+
+            if (_haptics == null) _haptics = GetComponentInParent<PlayerHaptics>(true);
+            _haptics?.PlayHitLight();
         }
 
         private void ApplyKnockbackTo(Collider other)
@@ -459,6 +463,9 @@ namespace MolimoByLulucaGameDev
 
             if (box != null) box.TakeDamage(_currentDamage, spawnPoint);
             else Destroy(other.gameObject);
+
+            if (_haptics == null) _haptics = GetComponentInParent<PlayerHaptics>(true);
+            _haptics?.PlayHitLight();
         }
 
         private bool TryHit(Object hitKey, Collider other, out Vector3 spawnPoint)

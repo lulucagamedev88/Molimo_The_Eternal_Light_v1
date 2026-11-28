@@ -161,6 +161,8 @@ namespace MolimoByLulucaGameDev
         [Tooltip("PlayerVFX que controla os efeitos visuais do DashAttack (lista configurável no próprio PlayerVFX).")]
         [SerializeField] private PlayerVFX playerVFX;
 
+        [SerializeField] private PlayerHaptics playerHaptics;
+
         [Header("Block Settings")]
         [SerializeField] private float blockDuration = 0.4f;
         [SerializeField] private Collider shieldCollider;
@@ -272,6 +274,10 @@ namespace MolimoByLulucaGameDev
             if (playerVFX == null) playerVFX = GetComponent<PlayerVFX>();
             if (playerVFX == null) playerVFX = GetComponentInParent<PlayerVFX>();
             if (playerVFX == null) playerVFX = GetComponentInChildren<PlayerVFX>(true);
+
+            if (playerHaptics == null) playerHaptics = GetComponent<PlayerHaptics>();
+            if (playerHaptics == null) playerHaptics = GetComponentInParent<PlayerHaptics>();
+            if (playerHaptics == null) playerHaptics = GetComponentInChildren<PlayerHaptics>(true);
 
             InitializeAnimatorParameters();
             ValidateCombatAnimatorParameters();
@@ -905,14 +911,17 @@ namespace MolimoByLulucaGameDev
                 if (hasDashAttackTriggerParameter) animator.SetTrigger(dashAttackTriggerHash);
             }
 
+            float estimatedDashDuration = direction.magnitude / Mathf.Max(0.01f, dashSpeed);
+
             if (ghostTrail != null)
             {
-                float estimatedDuration = direction.magnitude / Mathf.Max(0.01f, dashSpeed);
-                ghostTrail.ShowGhostTrail(Mathf.Min(estimatedDuration, dashMaxDuration));
+                ghostTrail.ShowGhostTrail(Mathf.Min(estimatedDashDuration, dashMaxDuration));
             }
 
             // O PlayerVFX controla os efeitos: o Combat apenas dispara o evento.
             playerVFX?.PlayDashAttackVFX(dashDirection);
+
+            playerHaptics?.PlayDashAttack(Mathf.Min(estimatedDashDuration, dashMaxDuration));
 
             return true;
         }
@@ -998,6 +1007,9 @@ namespace MolimoByLulucaGameDev
 
             movement?.SetDashAttacking(false);
             playerVFX?.StopDashAttackVFX();
+
+            if (landed) playerHaptics?.PlayDashAttackLanding();
+            playerHaptics?.StopDashAttack();
 
             // Devolve o Animator a um estado limpo: se o dash não aterrOU no golpe,
             // volta ao Locomotion; se aterrou, o EnterStage(Attack1) logo a seguir
@@ -1221,6 +1233,8 @@ namespace MolimoByLulucaGameDev
             isBlocking = true;
             blockTimer = blockDuration;
             brain?.SetMovementInputLocked(true);
+
+            playerHaptics?.PlayBlockStart();
 
             if (shieldCollider != null) shieldCollider.isTrigger = false;
 
