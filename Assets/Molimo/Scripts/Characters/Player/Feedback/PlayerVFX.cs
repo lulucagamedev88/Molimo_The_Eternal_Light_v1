@@ -397,6 +397,9 @@ namespace MolimoByLulucaGameDev
 
         // Dispara todos os VFX do DashAttack. Slots vazios (None) são ignorados com
         // segurança; o Stop→Clear→Play reinicia emissões pendentes de dashes anteriores.
+        // VFX atribuídos como PREFAB asset são instanciados em cena (não podem ser
+        // tocados diretamente — é a causa de o Play não fazer nada); instâncias de
+        // cena são reproduzidas diretamente.
         public void PlayDashAttackVFX(Vector3 dashDirection)
         {
             if (!vfxEnabled || dashAttackVFX == null || dashAttackVFX.Count == 0)
@@ -411,6 +414,12 @@ namespace MolimoByLulucaGameDev
                 if (vfx == null)
                     continue;
 
+                if (!vfx.gameObject.scene.IsValid())
+                {
+                    SpawnDashAttackVFX(vfx.gameObject, dashRotation);
+                    continue;
+                }
+
                 // VFX externos (não filhos do Player) são movidos para a origem do dash
                 // e alinhados com a direção; VFX filhos já seguem a rotação do corpo.
                 if (!vfx.transform.IsChildOf(transform))
@@ -418,6 +427,21 @@ namespace MolimoByLulucaGameDev
 
                 PlayParticleSystem(vfx);
             }
+        }
+
+        // Instancia um VFX configurado como prefab asset: nasce na posição do Player,
+        // alinhado à direção do dash, e autodestrói ao terminar (padrão SpawnVFX do
+        // WeaponHitBox).
+        private void SpawnDashAttackVFX(GameObject prefab, Quaternion dashRotation)
+        {
+            GameObject spawned = Instantiate(prefab, transform.position, dashRotation);
+
+            ParticleSystem ps = spawned.GetComponentInChildren<ParticleSystem>();
+            float destroyDelay = ps != null
+                ? ps.main.duration + ps.main.startLifetime.constantMax
+                : 2f;
+
+            Destroy(spawned, destroyDelay);
         }
 
         public void PlayHurtVFX() { if (vfxEnabled) PlayParticleSystem(hurtImpactPS); }
