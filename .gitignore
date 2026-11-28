@@ -113,13 +113,14 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
-# --- Adicoes para poupar dados neste envio ---
-Frank_Warrior/
-Frank_Warrior.meta
-Assets/ThirdParty/VFX/
-Assets/ThirdParty/VFX.meta
-Assets/ThirdParty/Zacxophone/
-Assets/ThirdParty/Zacxophone.meta
+# --- ThirdParty: ignora tudo exceto UnityAssets ---
+/[Aa]ssets/[Tt]hird[Pp]arty/*
+/[Aa]ssets/[Tt]hird[Pp]arty/*.meta
+!/[Aa]ssets/[Tt]hird[Pp]arty/[Uu]nity[Aa]ssets/
+!/[Aa]ssets/[Tt]hird[Pp]arty/[Uu]nity[Aa]ssets.meta
+!/[Aa]ssets/[Tt]hird[Pp]arty/[Uu]nity[Aa]ssets/**
+
+# --- Regras adicionais do projeto ---
 /.github/
 Thumbs.db
 Desktop.ini
