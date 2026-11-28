@@ -997,6 +997,7 @@ namespace MolimoByLulucaGameDev
             dashDirection = Vector3.forward;
 
             movement?.SetDashAttacking(false);
+            playerVFX?.StopDashAttackVFX();
 
             // Devolve o Animator a um estado limpo: se o dash não aterrOU no golpe,
             // volta ao Locomotion; se aterrou, o EnterStage(Attack1) logo a seguir

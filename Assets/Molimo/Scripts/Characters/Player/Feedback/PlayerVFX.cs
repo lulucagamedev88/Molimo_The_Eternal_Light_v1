@@ -99,6 +99,8 @@ namespace MolimoByLulucaGameDev
         private float _chargeMaxRate = 1f;
         private bool _chargeMaxRateCaptured;
         private bool _chargeAuthorized;
+
+        private readonly List<ParticleSystem> activeDashAttackVFX = new List<ParticleSystem>();
         #endregion
 
         #region Properties
@@ -407,6 +409,8 @@ namespace MolimoByLulucaGameDev
 
             Quaternion dashRotation = Quaternion.LookRotation(dashDirection);
 
+            activeDashAttackVFX.Clear();
+
             for (int i = 0; i < dashAttackVFX.Count; i++)
             {
                 ParticleSystem vfx = dashAttackVFX[i];
@@ -425,8 +429,26 @@ namespace MolimoByLulucaGameDev
                 if (!vfx.transform.IsChildOf(transform))
                     vfx.transform.SetPositionAndRotation(transform.position, dashRotation);
 
+                activeDashAttackVFX.Add(vfx);
                 PlayParticleSystem(vfx);
             }
+        }
+
+        // Para a emissão dos VFX de DashAttack ativos. StopEmitting preserva as
+        // partículas já emitidas, que desaparecem naturalmente ao expirar.
+        public void StopDashAttackVFX()
+        {
+            for (int i = 0; i < activeDashAttackVFX.Count; i++)
+            {
+                ParticleSystem vfx = activeDashAttackVFX[i];
+
+                if (vfx == null)
+                    continue;
+
+                vfx.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
+
+            activeDashAttackVFX.Clear();
         }
 
         // Instancia um VFX configurado como prefab asset: nasce na posição do Player,
@@ -470,6 +492,8 @@ namespace MolimoByLulucaGameDev
 
             if (dashTrailPS != null)
                 dashTrailPS.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+
+            StopDashAttackVFX();
 
             if (blockAuraPS != null)
                 blockAuraPS.Stop(true, ParticleSystemStopBehavior.StopEmitting);
